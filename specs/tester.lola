@@ -1,0 +1,18 @@
+// SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+// SPDX-License-Identifier: Apache-2.0
+
+input a0: Float32
+
+output geofence_g1 @ a0 := geofence_g1.offset(by: -1).defaults(to: 0) + 1
+output geofence_g2 @ 1Hz := geofence_g1.hold().defaults(to:0) + 1 + geofence_g2.offset(by: -1).defaults(to: 0)
+output geofence_g3 := if a0 > 10.0 then 3 else 1
+output geofence_g4 := if a0 > 10.0 then 4 else 1
+output tube_check := if a0 > 10.0 then 5 else 1
+output velocity_check :=  a0 
+output lat_vis := a0 
+output lon_vis := a0 
+output alt_vis := a0 
+output vel_vis := a0 
+output x_vis := a0 
+output y_vis := a0 
+output z_vis := a0 
