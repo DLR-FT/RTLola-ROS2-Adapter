@@ -15,7 +15,7 @@ impl RustFileGenerator {
         // Create file content
         let mut pub_mods_content = String::new();
         for (topic_name, _) in topics {
-            let parts: Vec<&str> = topic_name.split("/").collect();
+            let parts: Vec<&str> = topic_name.split('/').collect();
             let topic_name = parts.last().unwrap().to_lowercase();
             pub_mods_content.push_str(&format!("\t\tpub mod {topic_name};\n"));
         }

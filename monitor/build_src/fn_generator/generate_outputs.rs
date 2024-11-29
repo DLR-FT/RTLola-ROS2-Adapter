@@ -13,7 +13,7 @@ impl RustFileGenerator {
     ) {
         match rtlolaout_topic {
             Some((rtlola_package, members_type_and_name)) => {
-                let rtlola_package = rtlola_package.replace("/", "::");
+                let rtlola_package = rtlola_package.replace('/', "::");
                 // File that is generated
                 let file_location = format!("{}/output/rtlolaout_publisher.rs", self.dest_path);
                 let file = File::create(&file_location).unwrap();

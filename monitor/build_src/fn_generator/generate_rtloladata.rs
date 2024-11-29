@@ -17,7 +17,7 @@ impl RustFileGenerator {
         let mut includes = String::new();
         // Build statements
         for (topic, _) in topics {
-            let parts: Vec<&str> = topic.split("/").collect();
+            let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
             members.push_str(&format!("{topic_name} (RTLola{topic_name}),"));
             includes.push_str(&format!(
@@ -41,6 +41,6 @@ impl RustFileGenerator {
         // Write input source codeto file
         writeln!(&file, "{}", file_content).unwrap();
         // Format generated file
-        RustFileGenerator::cargo_fmt_file(&file_location.to_str().unwrap());
+        RustFileGenerator::cargo_fmt_file(file_location.to_str().unwrap());
     }
 }

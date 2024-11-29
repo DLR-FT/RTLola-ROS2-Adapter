@@ -29,9 +29,9 @@ fn main() {
         );
         // Overwrite folders
         println!("{}", config.dest_path_generation);
-        fs::create_dir_all(&format!("{}/", config.dest_path_generation)).unwrap();
-        fs::create_dir_all(&format!("{}/input/", config.dest_path_generation)).unwrap();
-        fs::create_dir_all(&format!("{}/output/", config.dest_path_generation)).unwrap();
+        fs::create_dir_all(format!("{}/", config.dest_path_generation)).unwrap();
+        fs::create_dir_all(format!("{}/input/", config.dest_path_generation)).unwrap();
+        fs::create_dir_all(format!("{}/output/", config.dest_path_generation)).unwrap();
 
         // Inputs
         let subscribable_topics: Vec<(String, String)> = ros2_reader.get_subscribable_topics();

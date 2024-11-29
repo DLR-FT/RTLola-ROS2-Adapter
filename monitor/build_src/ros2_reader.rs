@@ -21,7 +21,7 @@ impl Ros2Reader {
     pub fn get_subscribable_topics(&self) -> Vec<(String, String)> {
         // Receive a list of topcs
         let res = Command::new("ros2")
-            .args(&["topic", "list", "-t"])
+            .args(["topic", "list", "-t"])
             .output()
             .expect("Failed to execute process");
         let tmp = String::from_utf8_lossy(&res.stdout).to_string();

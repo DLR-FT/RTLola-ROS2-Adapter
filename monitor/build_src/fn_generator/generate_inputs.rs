@@ -17,7 +17,7 @@ impl RustFileGenerator {
             let (name_datatype, name_package, members_type_and_name) =
                 Ros2Reader::read_interface_msg(
                     &self.ros2_reader.get_location_setup_script().to_string(),
-                    &msg_name,
+                    msg_name,
                 );
             // Fills vector of topics that is also used in other file generation calls
             self.generated_topics.push((
@@ -57,7 +57,7 @@ impl RustFileGenerator {
             let name = if name == "type" { "type_" } else { name };
             let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
-                format!("{name}")
+                name.to_string()
             } else {
                 let r = Regex::new(r"__\d").unwrap();
                 let m = r.find(name).unwrap();

@@ -17,7 +17,7 @@ impl RustFileGenerator {
         let mut select_statement = String::new();
         // Build statements
         for (topic, _) in topics {
-            let parts: Vec<&str> = topic.split("/").collect();
+            let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
             rtlola_enum.push_str(&format!(
                 "{}::RTLola{topic_name},",

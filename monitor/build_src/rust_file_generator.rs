@@ -15,14 +15,14 @@ impl RustFileGenerator {
     pub fn new(ros2_reader: Ros2Reader, dest_path: String) -> Self {
         Self {
             ros2_reader,
-            dest_path: dest_path,
+            dest_path,
             generated_topics: Vec::<(String, String, String)>::new(),
         }
     }
 
     pub fn cargo_fmt_file(file_path: &str) {
         Command::new("rustfmt")
-            .args(&[file_path])
+            .args([file_path])
             .output()
             .expect("Failed to execute process");
     }
