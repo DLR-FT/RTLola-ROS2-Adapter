@@ -27,49 +27,71 @@ impl RustFileGenerator {
                     match ty.as_str() {
                         "bool" => {
                             default_values.push_str(&format!("{name}: false,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_bool(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_bool(v)?,"
+                            ));
                         }
                         "float32" => {
                             default_values.push_str(&format!("{name}: 0.0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_f32(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_f32(v)?,"
+                            ));
                         }
                         "float64" => {
                             default_values.push_str(&format!("{name}: 0.0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_f64(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_f64(v)?,"
+                            ));
                         }
                         "int8" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i8(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_i8(v)?,"
+                            ));
                         }
                         "uint8" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u8(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_u8(v)?,"
+                            ));
                         }
                         "int16" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i16(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_i16(v)?,"
+                            ));
                         }
                         "uint16" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u16(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_u16(v)?,"
+                            ));
                         }
                         "int32" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i32(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_i32(v)?,"
+                            ));
                         }
                         "uint32" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u32(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_u32(v)?,"
+                            ));
                         }
-                        
+
                         "int64" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i64(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_i64(v)?,"
+                            ));
                         }
-                        
+
                         "uint64" => {
                             default_values.push_str(&format!("{name}: 0,"));
-                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u64(v)?,"));
+                            value_change.push_str(&format!(
+                                "{i} => self.latest_pub.{name} = value_as_u64(v)?,"
+                            ));
                         }
                         _ => {
                             panic!(
@@ -79,7 +101,7 @@ impl RustFileGenerator {
                                 arr_access,
                             )
                         }
-                    } 
+                    }
                 }
                 // Read the contents of the file into a String
                 let mut file_content = String::new();
