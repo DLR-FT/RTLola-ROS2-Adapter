@@ -9,7 +9,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "tester_publisher/msg/adc.hpp"
 #include "tester_publisher/msg/gps_pos.hpp"
-#include "sensor_msgs/msg/image.hpp"
 
 #define READ_FAILED -1
 using std::placeholders::_1;
@@ -21,7 +20,6 @@ public:
     {
         m_node->declare_parameter("Adc", "tester/Adc");
         m_node->declare_parameter("GpsPos", "tester/GpsPos");
-        m_node->declare_parameter("Lidar", "tester/topic_lidar_reflect");
         rclcpp::QoS qos(10);
         // qos.best_effort();
         m_count = 0;
@@ -29,8 +27,6 @@ public:
         m_publisher1 = m_node->create_publisher<tester_publisher::msg::Adc>(m_node->get_parameter("Adc").get_parameter_value().get<std::string>(), qos);
         m_publisher2 = m_node->create_publisher<tester_publisher::msg::GpsPos>(m_node->get_parameter("GpsPos").get_parameter_value().get<std::string>(), qos);
         m_timer_ = m_node->create_wall_timer(std::chrono::milliseconds(500), std::bind(&AdcPublisher::task, this));
-        // Subscription
-        // m_sample_subscription = m_node->create_subscription<sensor_msgs::msg::Image>(m_node->get_parameter("Lidar").get_parameter_value().get<std::string>(), qos, std::bind(&AdcPublisher::lidar_reflec_callback, this, _1));
     }
 
     void task()
@@ -64,18 +60,11 @@ private:
     int m_count;
     rclcpp::Publisher<tester_publisher::msg::Adc>::SharedPtr m_publisher1;
     rclcpp::Publisher<tester_publisher::msg::GpsPos>::SharedPtr m_publisher2;
-    rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr m_sample_subscription;
-
     rclcpp::TimerBase::SharedPtr m_timer_;
 
     void get_voltage(int channel, float &voltage, int &failure)
     {
         voltage = channel;
         failure = channel;
-    }
-
-    void lidar_reflec_callback(const sensor_msgs::msg::Image::SharedPtr msg_) const
-    {
-        RCLCPP_INFO(this->m_node->get_logger(), "OUSTER: I heard lidar_reflec_callback");
     }
 };

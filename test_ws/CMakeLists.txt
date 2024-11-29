@@ -1,6 +1,5 @@
 # SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 # SPDX-License-Identifier: Apache-2.0
-
 cmake_minimum_required(VERSION 3.5)
 project(tester_publisher)
 
@@ -27,6 +26,7 @@ find_package(sensor_msgs REQUIRED)
 set(msg_files 
   "msg/Adc.msg"
   "msg/GpsPos.msg"
+  "msg/RTLolaOut.msg"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME} ${msg_files})

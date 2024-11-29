@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 generate_file = true
+
 # location of the local ros2 setup that shall be used to get message interface information e.g. "/root/repos/DLR/tester/install/setup.bash"
-local_setup_script = [  "../rtlolaout_colcon/install/setup.bash" ]   
+local_setup_script = [  "../test_ws/install/setup.bash" ]   
+
 # Topic messages that should be ignored
 blacklist = [   "rcl_interfaces/msg/ParameterEvent", 
                 "rcl_interfaces/msg/Log", 

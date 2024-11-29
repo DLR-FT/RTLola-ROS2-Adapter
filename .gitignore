@@ -1,8 +1,12 @@
 # SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 # SPDX-License-Identifier: Apache-2.0
 
-debug/
-target/
+*/debug/
+*/target/
+*/install
+test_ws/build
+test_ws/log
+src_generated
 
 Cargo.lock
 .gitignore

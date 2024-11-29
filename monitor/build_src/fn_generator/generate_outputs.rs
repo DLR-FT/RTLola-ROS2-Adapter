@@ -12,7 +12,8 @@ impl RustFileGenerator {
         rtlolaout_topic: &Option<(String, Vec<(String, String, i32)>)>,
     ) {
         match rtlolaout_topic {
-            Some((_, members_type_and_name)) => {
+            Some((rtlola_package, members_type_and_name)) => {
+                let rtlola_package = rtlola_package.replace("/", "::");
                 // File that is generated
                 let file_location = format!("{}/output/rtlolaout_publisher.rs", self.dest_path);
                 let file = File::create(&file_location).unwrap();
@@ -24,18 +25,61 @@ impl RustFileGenerator {
                 for (i, (ty, name, arr_access)) in members_type_and_name.iter().enumerate() {
                     output_names.push_str(&format!("\"{name}\","));
                     match ty.as_str() {
-                        "bool" => default_values.push_str(&format!("{name}: false,")),
-                        "float32" | "float64" => default_values.push_str(&format!("{name}: 0.0,")),
-                        "int8" | "uint8" | "int16" | "uint16" | "int32" | "uint32" | "int64"
-                        | "uint64" => default_values.push_str(&format!("{name}: 0,")),
-                        _ => panic!(
-                            "Unsupported Ros2 Type in {}: {}[{}]",
-                            name,
-                            ty.as_str(),
-                            arr_access,
-                        ),
-                    };
-                    value_change.push_str(&format!("{i} => self.latest_pub.{name} = val,"))
+                        "bool" => {
+                            default_values.push_str(&format!("{name}: false,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_bool(v)?,"));
+                        }
+                        "float32" => {
+                            default_values.push_str(&format!("{name}: 0.0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_f32(v)?,"));
+                        }
+                        "float64" => {
+                            default_values.push_str(&format!("{name}: 0.0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_f64(v)?,"));
+                        }
+                        "int8" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i8(v)?,"));
+                        }
+                        "uint8" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u8(v)?,"));
+                        }
+                        "int16" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i16(v)?,"));
+                        }
+                        "uint16" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u16(v)?,"));
+                        }
+                        "int32" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i32(v)?,"));
+                        }
+                        "uint32" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u32(v)?,"));
+                        }
+                        
+                        "int64" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_i64(v)?,"));
+                        }
+                        
+                        "uint64" => {
+                            default_values.push_str(&format!("{name}: 0,"));
+                            value_change.push_str(&format!("{i} => self.latest_pub.{name} = value_as_u64(v)?,"));
+                        }
+                        _ => {
+                            panic!(
+                                "Unsupported Ros2 Type in {}: {}[{}]",
+                                name,
+                                ty.as_str(),
+                                arr_access,
+                            )
+                        }
+                    } 
                 }
                 // Read the contents of the file into a String
                 let mut file_content = String::new();
@@ -47,6 +91,7 @@ impl RustFileGenerator {
                     .read_to_string(&mut file_content)
                     .unwrap();
                 // Replace each template parameter by the actual values
+                file_content = file_content.replace("$RTLOLAPACKAGE$", rtlola_package.as_str());
                 file_content = file_content.replace("$OUTPUTNAMES$", &output_names);
                 file_content = file_content.replace("$DEFAULTVALUES$", &default_values);
                 file_content = file_content.replace("$VALUECHANGE$", &value_change);

@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include <cstdio>
-//#include <algorithm>
 #include <memory>
-//#include <utility>
 
 #include "rclcpp/rclcpp.hpp"
 #include "adc_publisher.hpp"

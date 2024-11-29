@@ -1,5 +1,5 @@
-// SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
-// SPDX-License-Identifier: Apache-2.0
+# SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+# SPDX-License-Identifier: Apache-2.0
 
 bool b
 float32 f_32
