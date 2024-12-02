@@ -14,6 +14,8 @@ ROS 2 adapter for CISPA's RTLola monitoring interpreter.
 The adapter assumes a running ROS 2 workspace, i.e., `ros2 topic list` returns a list of topics that are currently executed. The adapter will then automatically generate RTLola input stream binding for all available topic data. If a topic called `RTLolaOut` is an available interace, i.e., `RTLolaOut` is returned by `ros2 interface list`, it will also generate a binding to the respective RTLola outputs. 
 
 > [ros2_config.toml](monitor/ros2_config.toml) allows you to freeze the binding by setting `generate_file` to `false`.
+
+> Members of a ros2 topic are prefixed by the package name, i.e., ``<package_name_lowercase>__<member>``. For instance, if the topic ``Adc`` has a member ``float32 a0``, then this member can be accessed by the RTLola specification using ``input adc__a0: Float32``.
  
 For more RTLola information see [here](https://rtlola.cispa.de/).
 

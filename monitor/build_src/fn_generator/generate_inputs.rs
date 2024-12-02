@@ -49,12 +49,17 @@ impl RustFileGenerator {
         topic_name: String,
         members_type_and_name: Vec<(String, String, i32)>,
     ) {
+        let topic_name_lowercase = topic_name.to_lowercase();
         // Statements to be added depending on ros2 readings
         let mut struct_data = String::new();
         let mut from_data = String::new();
         // Extracting Information
         for (ty, name, i) in &members_type_and_name {
-            let name = if name == "type" { "type_" } else { name };
+            let rtlola_name = if name == "type" {
+                "type_".to_string()
+            } else {
+                format!("{topic_name_lowercase}__{name}")
+            };
             let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
                 name.to_string()
@@ -64,8 +69,8 @@ impl RustFileGenerator {
                 let name = &name[0..m.start()];
                 format!("{name}[{i}]")
             };
-            struct_data.push_str(&format!("{name}: {ty_transformed},\n"));
-            from_data.push_str(&format!("{name}: data.{access},\n"));
+            struct_data.push_str(&format!("{rtlola_name}: {ty_transformed},\n"));
+            from_data.push_str(&format!("{rtlola_name}: data.{access},\n"));
         }
         println!("{package_name} {topic_name} {struct_data}{from_data}");
         // Read the contents of the file into a String
