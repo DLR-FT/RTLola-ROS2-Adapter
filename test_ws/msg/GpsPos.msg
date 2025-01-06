@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 #in ms
-float32 time_of_week  #tester
-float32 lon	# tester
-float32 lat	#  #1 #2 3#4 5#6 #23
+float32 time_of_week  
+float32 lon	
+float32 lat
 #in m
 float32 height_above_ellipsoid
 #in m

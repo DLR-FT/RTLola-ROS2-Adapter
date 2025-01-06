@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 # SPDX-License-Identifier: Apache-2.0
 cmake_minimum_required(VERSION 3.5)
-project(tester_publisher)
+project(rtlola_testnode)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
@@ -26,20 +26,21 @@ find_package(sensor_msgs REQUIRED)
 set(msg_files 
   "msg/Adc.msg"
   "msg/GpsPos.msg"
-  "msg/RTLolaOut.msg"
+  "msg/RTLolaOutput.msg"
+  "srv/RTLolaService.srv"
 )
 
 rosidl_generate_interfaces(${PROJECT_NAME} ${msg_files})
 ament_export_dependencies(rosidl_default_runtime)
 
-add_executable(tester src/tester_publisher.cpp)
+add_executable(testnode src/testnode.cpp)
 
-rosidl_target_interfaces(tester ${PROJECT_NAME} "rosidl_typesupport_cpp")
-ament_target_dependencies(tester "rclcpp" sensor_msgs)
+rosidl_target_interfaces(testnode ${PROJECT_NAME} "rosidl_typesupport_cpp")
+ament_target_dependencies(testnode "rclcpp" sensor_msgs)
 
 
 
-install(TARGETS tester
+install(TARGETS testnode
   DESTINATION lib/${PROJECT_NAME})
 
 ament_package()
