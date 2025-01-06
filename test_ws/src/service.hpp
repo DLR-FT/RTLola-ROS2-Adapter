@@ -29,11 +29,21 @@ public:
         request->s2 = 2;
         request->s3 = 3;
         request->s4 = 4;
-         m_request_client->async_send_request(request);
+        m_request_client->async_send_request(request,
+            std::bind(&ServiceRequest::handle_response, this, std::placeholders::_1));
+    }
+
+    void handle_response(std::shared_future<rtlola_testnode::srv::RTLolaService::Response::SharedPtr> future)
+    {
+        // Wait for the response (when the future is ready)
+        auto response = future.get();
+        // Process the response
+        RCLCPP_INFO(m_node->get_logger(), "Service call succeeded. Response: i_16 = %ld, u_16 = %ld, i_32 = %ld, u_32 = %ld, i_64 = %ld, u_64 = %ld",
+        response->i_16, response->u_16, response->i_32, response->u_32, response->i_64, response->u_64);
     }
 
 private:
-    rclcpp::Node *m_node;
+    rclcpp::Node* m_node;
     rclcpp::Client<rtlola_testnode::srv::RTLolaService>::SharedPtr m_request_client;
     rclcpp::TimerBase::SharedPtr m_timer_;
 };
