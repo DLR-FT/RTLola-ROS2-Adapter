@@ -10,8 +10,10 @@ mod build_src {
         pub mod generate_main;
         pub mod generate_outputs;
         pub mod generate_ros2_handler;
+        pub mod generate_ros2_service;
         pub mod generate_rtloladata;
         pub mod generate_sink_error;
+        pub mod generate_transformations;
     }
 }
 
@@ -28,7 +30,6 @@ fn main() {
             config.get_local_setup_script().clone(),
         );
         // Overwrite folders
-        println!("{}", config.dest_path_generation);
         fs::create_dir_all(format!("{}/", config.dest_path_generation)).unwrap();
         fs::create_dir_all(format!("{}/input/", config.dest_path_generation)).unwrap();
         fs::create_dir_all(format!("{}/output/", config.dest_path_generation)).unwrap();
@@ -37,15 +38,16 @@ fn main() {
         let subscribable_topics: Vec<(String, String)> = ros2_reader.get_subscribable_topics();
         // Outputs
         let rtlolaout_topic = ros2_reader.get_rtlola_output_msg();
-        // let rtlolaout_service: Option<bool> = None; //ros2_reader.get_rtlola_output_srv();
+        let rtlolaout_service = ros2_reader.get_rtlola_service();
         // Generate rust code for inputs and outputs
         let mut rust_generator = RustFileGenerator::new(ros2_reader, config.dest_path_generation);
-        rust_generator.generate_file_inputs(&subscribable_topics);
-        rust_generator.generate_file_main(&subscribable_topics);
-        rust_generator.generate_file_ros2handler(&subscribable_topics);
-        rust_generator.generate_file_rtloladata(&subscribable_topics);
+        rust_generator.generate_file_inputs(&subscribable_topics, &rtlolaout_service);
+        rust_generator.generate_file_main(&subscribable_topics, rtlolaout_service.is_some());
+        rust_generator.generate_file_ros2handler(&subscribable_topics, rtlolaout_service.is_some());
+        rust_generator.generate_file_rtloladata(&subscribable_topics, &rtlolaout_service);
+        rust_generator.generate_file_transformations();
         rust_generator.generate_file_rtlolaout_publisher(&rtlolaout_topic);
+        rust_generator.generate_file_rtlolaout_service(&rtlolaout_service);
         rust_generator.generate_sink_error();
     };
-    println!("end");
 }

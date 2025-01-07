@@ -4,13 +4,14 @@
 use std::error::Error;
 
 use crate::{
-    input::{$RTLOLAENUM$ 
-        rtloladata::RTLolaData, rtloladata::RTLolaDataFactory},
-    output::rtlolaout_publisher::Ros2Publisher,
+    input::{$RTLOLAENUM$
+        rtlola_request::RTLolaServiceRequest, 
+        rtloladata::{RTLolaData, RTLolaDataFactory, RTLolaType}},
+    output::{rtlolaout_publisher::Ros2Publisher, rtlolaout_service::Ros2ServiceHandler},
 };
 use futures::{stream_select, StreamExt};
 use r2r::{
-    tester_publisher::msg::{$ROS2MSGS$},
+    rtlola_testnode::msg::{$ROS2MSGS$},
     QosProfile,
 };
 use rtlola_interpreter::{
@@ -27,12 +28,18 @@ impl Ros2Handler {
     ) -> Result<(), Box<dyn Error>> {
         // r2r context
         let ctx = r2r::Context::create().unwrap();
+        // quality of service
+        let qos = QosProfile::default();
         // creates ros2 node
         let mut node = r2r::Node::create(ctx, "rtlola", "").unwrap();
         // creates subscribers
         $SUBSCRIBERS$
-        // creates one ros2 publisher for RTLolaOut
+        // create service
+        $SERVICE$
+        // creates one ros2 publisher for RTLolaOutput
         let mut publisher = Ros2Publisher::new(monitor.ir(), &mut node)?;
+        // create service handler
+        let mut service_handler = Ros2ServiceHandler::new(monitor.ir())?;
         // uses futures to handle asynchonous access
         let mut all = stream_select!($SELECTSTATEMENT$);
         // specifies frequency of monitor: 100ms = 10Hz
@@ -46,20 +53,44 @@ impl Ros2Handler {
             match timeout(Duration::from_millis(100), all.next()).await {
                 Ok(data) => {
                     match data {
-                        Some(data) => {
-                            // Event received
-                            let Verdicts {
-                                timed,
-                                event,
-                                ts: _,
-                            } = monitor
-                                .accept_event(data, ())
-                                .map_err(|_| println!("Message could not be parsed"))
-                                .unwrap();
-                            let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
-                                timed.into_iter().map(|(_, v)| v).collect();
-                            verdicts_vec.extend(timed_v);
-                            verdicts_vec.push(event);
+                        Some(ty) => {
+                            match ty {
+                                RTLolaType::Subscription(rtlola_data) => {
+                                    println!("sub");
+                                    // Event received
+                                    let Verdicts {
+                                        timed,
+                                        event,
+                                        ts: _,
+                                    } = monitor
+                                        .accept_event(rtlola_data, ())
+                                        .map_err(|_| println!("Message could not be parsed"))
+                                        .unwrap();
+                                    let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
+                                        timed.into_iter().map(|(_, v)| v).collect();
+                                    verdicts_vec.extend(timed_v);
+                                    verdicts_vec.push(event);
+                                    println!("esub");
+                                }
+                                RTLolaType::Service(rtlola_data, service_request) => {
+                                    println!("ser");
+                                    // Event received
+                                    let Verdicts {
+                                        timed,
+                                        event,
+                                        ts: _,
+                                    } = monitor
+                                        .accept_event(rtlola_data, ())
+                                        .map_err(|_| println!("Message could not be parsed"))
+                                        .unwrap();
+                                    let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
+                                        timed.into_iter().map(|(_, v)| v).collect();
+                                    verdicts_vec.extend(timed_v);
+                                    verdicts_vec.push(event);
+                                    service_handler.handle(service_request, &verdicts_vec)?;
+                                    println!("eser");
+                                }
+                            }
                         }
                         None => {
                             // No event received
@@ -68,16 +99,15 @@ impl Ros2Handler {
                                 timed.into_iter().map(|(_, v)| v).collect();
                             verdicts_vec.extend(timed_v);
                         }
-                    }         
-                },
+                    }
+                }
                 Err(_) => {
                     // No event received
                     let timed = monitor.accept_time(());
                     let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
                         timed.into_iter().map(|(_, v)| v).collect();
                     verdicts_vec.extend(timed_v);
-                },
-                
+                }
             };
             // publishes data
             publisher.publish(verdicts_vec).unwrap()

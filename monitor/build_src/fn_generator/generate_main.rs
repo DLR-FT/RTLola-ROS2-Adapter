@@ -8,7 +8,7 @@ use std::{
 };
 
 impl RustFileGenerator {
-    pub fn generate_file_main(&self, topics: &Vec<(String, String)>) {
+    pub fn generate_file_main(&self, topics: &Vec<(String, String)>, has_service: bool) {
         // File that is generated
         let file_location = format!("{}/main.rs", self.dest_path);
         let file = File::create(&file_location).unwrap();
@@ -18,6 +18,9 @@ impl RustFileGenerator {
             let parts: Vec<&str> = topic_name.split('/').collect();
             let topic_name = parts.last().unwrap().to_lowercase();
             pub_mods_content.push_str(&format!("\t\tpub mod {topic_name};\n"));
+        }
+        if has_service {
+            pub_mods_content.push_str("\t\tpub mod rtlola_request;\n");
         }
         // Read the contents of the file into a String
         let mut file_content = String::new();

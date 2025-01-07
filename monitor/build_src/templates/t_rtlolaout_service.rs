@@ -1,21 +1,17 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
-use r2r::{$RTLOLAPACKAGE$, Node, Publisher, QosProfile};
-use rtlola_interpreter::{monitor::Change,rtlola_mir::RtLolaMir};
 use super::sink_error::SinkErr;
 use super::transformations::*;
-pub struct Ros2Publisher {
-    publisher: Publisher<RTLolaOutput>,
+use r2r::{$RTLOLAPACKAGE$::srv::RTLolaService::Response};
+use rtlola_interpreter::{monitor::Change, rtlola_mir::RtLolaMir};
+pub struct Ros2ServiceHandler {
     streams: Vec<usize>,
-    latest_pub: RTLolaOutput,
+    latest_response: Response,
 }
 
-impl Ros2Publisher {
-    pub fn new(ir: &RtLolaMir, node: &mut Node) -> Result<Self, SinkErr> {
-        let publisher = node
-            .create_publisher::<RTLolaOutput>("/RTLolaOutput", QosProfile::default())
-            .map_err(SinkErr::R2rError)?;
+impl Ros2ServiceHandler {
+    pub fn new(ir: &RtLolaMir) -> Result<Self, SinkErr> {
         let mut streams = vec![];
         let look_for = [$OUTPUTNAMES$];
         for out_stream in look_for {
@@ -33,9 +29,8 @@ impl Ros2Publisher {
             streams.push(found_stream);
         }
         Ok(Self {
-            publisher,
             streams,
-            latest_pub: RTLolaOutput {
+            latest_response: Response {
                 $DEFAULTVALUES$
             },
         })
@@ -52,26 +47,28 @@ impl Ros2Publisher {
         found
     }
 
-    pub fn publish(&mut self, verdicts: Vec<Vec<(usize, Vec<Change>)>>) -> Result<(), SinkErr> {
-        println!("Published: {:?}", verdicts);
+    pub fn handle(
+        &mut self,
+        request: r2r::ServiceRequest<r2r::rtlola_testnode::srv::RTLolaService::Service>,
+        verdicts: &Vec<Vec<(usize, Vec<Change>)>>,
+    ) -> Result<(), SinkErr> {
+        println!("Response: {:?}", verdicts);
         for verdict in verdicts {
             for (sr, change) in verdict {
                 // Find matching stream in publish topic
                 let v = value_for_changes(&change);
-                match self.get_match(sr) {
-                    Some(ros2_pos) => {
-                        match ros2_pos {
-                            $VALUECHANGE$
-                            _ => unreachable!("should not end here"),
-                        }
-                    }
+                match self.get_match(*sr) {
+                    Some(ros2_pos) => match ros2_pos {
+                        $VALUECHANGE$
+                        _ => unreachable!("should not end here"),
+                    },
                     None => continue,
                 }
             }
         }
-        // Publish updated RTLolaOutput topic
-        self.publisher
-            .publish(&self.latest_pub)
+        //Response
+        request
+            .respond(self.latest_response.clone())
             .map_err(SinkErr::R2rError)
     }
 }
