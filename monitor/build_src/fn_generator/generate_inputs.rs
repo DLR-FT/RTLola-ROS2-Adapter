@@ -52,7 +52,7 @@ impl RustFileGenerator {
         if let Some((name, request, _response)) = rtlolaout_service {
             // Build path for each topic
             let new_file_location = Path::new(&format!("{}/input/", self.dest_path.clone()))
-                .join(format!("rtlola_request.rs")); // Creates file
+                .join("rtlola_request.rs".to_string()); // Creates file
             let file = File::create(new_file_location.clone()).unwrap();
             // Create content of file
             self.create_input_ros2_srv(file, name.to_string(), request);

@@ -8,7 +8,7 @@ pub mod input {
 }
 pub mod output {
     pub mod rtlolaout_publisher;
-    pub mod rtlolaout_service;
+    $SERVICEAVAILABLE$
     pub mod sink_error;
     pub mod transformations;
 }

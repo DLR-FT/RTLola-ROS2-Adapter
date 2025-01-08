@@ -37,9 +37,6 @@ impl RustFileGenerator {
             ));
             select_statement.push_str(&format!("{}_subscriber,", topic_name.to_lowercase()));
         }
-        if has_service {
-            select_statement.push_str("service");
-        }
         // Read the contents of the file into a String
         let mut file_content = String::new();
         let crate_root = std::env::current_dir().expect("Failed to get current directory");
@@ -53,7 +50,46 @@ impl RustFileGenerator {
         file_content = file_content.replace("$RTLOLAENUM$", &rtlola_enum);
         file_content = file_content.replace("$ROS2MSGS$", &ros2_msgs);
         file_content = file_content.replace("$SUBSCRIBERS$", &subscribers);
-        file_content = file_content.replace("$SERVICE$", &service);
+        file_content = file_content.replace("$SERVICE$", service);
+        if has_service {
+            select_statement.push_str("service");
+            file_content = file_content.replace(
+                "$SERVICEAVAILABLE$",
+                "rtlola_request::RTLolaServiceRequest,",
+            );
+            file_content = file_content.replace(
+                "$SERVICEHANDLER$",
+                "let mut service_handler = Ros2ServiceHandler::new(monitor.ir())?;",
+            );
+            file_content = file_content.replace(
+                "$SERVICEHANDLERUSE$",
+                "rtlolaout_service::Ros2ServiceHandler",
+            );
+            file_content = file_content.replace(
+                "SERVICECASE",
+                "RTLolaType::Service(rtlola_data, service_request) => {
+                                    // Event received
+                                    let Verdicts {
+                                        timed,
+                                        event,
+                                        ts: _,
+                                    } = monitor
+                                        .accept_event(rtlola_data, ())
+                                        .map_err(|_| println!(\"Message could not be parsed\"))
+                                        .unwrap();
+                                    let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
+                                        timed.into_iter().map(|(_, v)| v).collect();
+                                    verdicts_vec.extend(timed_v);
+                                    verdicts_vec.push(event);
+                                    service_handler.handle(service_request, &verdicts_vec)?;
+                                }",
+            );
+        } else {
+            file_content = file_content.replace("$SERVICEAVAILABLE$", "");
+            file_content = file_content.replace("$SERVICEHANDLER$", "");
+            file_content = file_content.replace("$SERVICEHANDLERUSE$", "");
+            file_content = file_content.replace("$SERVICECASE$", "");
+        }
         file_content = file_content.replace("$SELECTSTATEMENT$", &select_statement);
         // Write input source codeto file
         writeln!(&file, "{}", file_content).unwrap();

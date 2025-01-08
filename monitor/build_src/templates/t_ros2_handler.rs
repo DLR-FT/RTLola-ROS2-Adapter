@@ -5,9 +5,9 @@ use std::error::Error;
 
 use crate::{
     input::{$RTLOLAENUM$
-        rtlola_request::RTLolaServiceRequest, 
+        $SERVICEAVAILABLE$
         rtloladata::{RTLolaData, RTLolaDataFactory, RTLolaType}},
-    output::{rtlolaout_publisher::Ros2Publisher, rtlolaout_service::Ros2ServiceHandler},
+    output::{rtlolaout_publisher::Ros2Publisher, $SERVICEHANDLERUSE$},
 };
 use futures::{stream_select, StreamExt};
 use r2r::{
@@ -39,7 +39,7 @@ impl Ros2Handler {
         // creates one ros2 publisher for RTLolaOutput
         let mut publisher = Ros2Publisher::new(monitor.ir(), &mut node)?;
         // create service handler
-        let mut service_handler = Ros2ServiceHandler::new(monitor.ir())?;
+        $SERVICEHANDLER$
         // uses futures to handle asynchonous access
         let mut all = stream_select!($SELECTSTATEMENT$);
         // specifies frequency of monitor: 100ms = 10Hz
@@ -56,7 +56,6 @@ impl Ros2Handler {
                         Some(ty) => {
                             match ty {
                                 RTLolaType::Subscription(rtlola_data) => {
-                                    println!("sub");
                                     // Event received
                                     let Verdicts {
                                         timed,
@@ -70,26 +69,8 @@ impl Ros2Handler {
                                         timed.into_iter().map(|(_, v)| v).collect();
                                     verdicts_vec.extend(timed_v);
                                     verdicts_vec.push(event);
-                                    println!("esub");
                                 }
-                                RTLolaType::Service(rtlola_data, service_request) => {
-                                    println!("ser");
-                                    // Event received
-                                    let Verdicts {
-                                        timed,
-                                        event,
-                                        ts: _,
-                                    } = monitor
-                                        .accept_event(rtlola_data, ())
-                                        .map_err(|_| println!("Message could not be parsed"))
-                                        .unwrap();
-                                    let timed_v: Vec<Vec<(usize, Vec<Change>)>> =
-                                        timed.into_iter().map(|(_, v)| v).collect();
-                                    verdicts_vec.extend(timed_v);
-                                    verdicts_vec.push(event);
-                                    service_handler.handle(service_request, &verdicts_vec)?;
-                                    println!("eser");
-                                }
+                                $SERVICECASE$
                             }
                         }
                         None => {

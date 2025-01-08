@@ -35,8 +35,8 @@ impl RustFileGenerator {
             ));
         }
         let package_name = if let Some(service) = rtlolaout_service {
-            members.push_str(&format!("RTLolaRequest (RTLolaServiceRequest),"));
-            includes.push_str(&format!("rtlola_request::RTLolaServiceRequest,"));
+            members.push_str(&"RTLolaRequest (RTLolaServiceRequest),".to_string());
+            includes.push_str(&"rtlola_request::RTLolaServiceRequest,".to_string());
             Some(service.0.clone())
         } else {
             None
@@ -53,7 +53,20 @@ impl RustFileGenerator {
         // Replace each template parameter by the actual values
         file_content = file_content.replace("$MEMBERS$", &members);
         if let Some(package_name) = package_name {
-            file_content = file_content.replace("$PACKAGENAME$", &package_name);
+            file_content = file_content.replace(
+                "$SERVICE$",
+                &format!(
+                    "use r2r::{{{}::srv::RTLolaService, ServiceRequest}};",
+                    package_name
+                ),
+            );
+            file_content = file_content.replace(
+                "$SERVICETYPE$",
+                "Service(RTLolaData, ServiceRequest<RTLolaService::Service>),",
+            );
+        } else {
+            file_content = file_content.replace("$SERVICE$", "");
+            file_content = file_content.replace("$SERVICETYPE$", "");
         }
         file_content = file_content.replace("$INCLUDE$", &includes);
         // Write input source codeto file

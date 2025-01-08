@@ -19,9 +19,6 @@ impl RustFileGenerator {
             let topic_name = parts.last().unwrap().to_lowercase();
             pub_mods_content.push_str(&format!("\t\tpub mod {topic_name};\n"));
         }
-        if has_service {
-            pub_mods_content.push_str("\t\tpub mod rtlola_request;\n");
-        }
         // Read the contents of the file into a String
         let mut file_content = String::new();
         let crate_root = std::env::current_dir().expect("Failed to get current directory");
@@ -31,6 +28,12 @@ impl RustFileGenerator {
             .read_to_string(&mut file_content)
             .unwrap();
         // Replace each template parameter by the actual values
+        if has_service {
+            pub_mods_content.push_str("\t\tpub mod rtlola_request;\n");
+            file_content = file_content.replace("$SERVICEAVAILABLE$", "pub mod rtlolaout_service;");
+        } else {
+            file_content = file_content.replace("$SERVICEAVAILABLE$", "");
+        }
         file_content = file_content.replace("$INPUTMODS$", &pub_mods_content);
         // Write input source codeto file
         writeln!(&file, "{}", file_content).unwrap();

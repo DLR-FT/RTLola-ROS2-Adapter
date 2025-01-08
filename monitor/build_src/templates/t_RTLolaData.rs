@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use super::{$INCLUDE$};
-use r2r::{$PACKAGENAME$::srv::RTLolaService, ServiceRequest};
+$SERVICE$
 use rtlola_interpreter_macros::CompositFactory;
 
 #[derive(CompositFactory, Debug)]
@@ -13,5 +13,5 @@ pub enum RTLolaData {
 
 pub enum RTLolaType {
     Subscription(RTLolaData),
-    Service(RTLolaData, ServiceRequest<RTLolaService::Service>),
+    $SERVICETYPE$
 }
