@@ -21,8 +21,21 @@ use build_src::config::Config;
 use build_src::ros2_reader::Ros2Reader;
 use build_src::rust_file_generator::RustFileGenerator;
 use std::fs::{self};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 fn main() {
+    // Ensure that build.rs is always executed
+    let start = SystemTime::now();
+    let since_the_epoch = start
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+
+    println!("cargo:rerun-if-changed=build.rs");
+    println!(
+        "cargo:rerun-if-changed=force_build_{}",
+        since_the_epoch.as_secs()
+    );
+    // Start building
     let config = Config::new("ros2_config.toml");
     if config.generate_file {
         let ros2_reader: Ros2Reader = Ros2Reader::new(
