@@ -66,7 +66,7 @@ impl RustFileGenerator {
                 "rtlolaout_service::Ros2ServiceHandler",
             );
             file_content = file_content.replace(
-                "SERVICECASE",
+                "$SERVICECASE$",
                 "RTLolaType::Service(rtlola_data, service_request) => {
                                     // Event received
                                     let Verdicts {
