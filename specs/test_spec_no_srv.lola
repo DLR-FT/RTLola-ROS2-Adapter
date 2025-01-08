@@ -2,22 +2,21 @@
 // SPDX-License-Identifier: Apache-2.0
 
 input adc__a0: Float32
-input rtlolarequest__s0: Float32
 input gpspos__lon: Float32
 output f_64 : Float32  @ 1Hz := 
                 adc__a0.hold().defaults(to:0.0) 
               + f_64.offset(by: -1).defaults(to: 0.0)
 
 
-output b : Bool @adc__a0 or rtlolarequest__s0 := true
+output b : Bool @adc__a0 := true
 
-output f_32 : Float32 @ adc__a0 or rtlolarequest__s0 := 0.0
+output f_32 : Float32 @ adc__a0  := 0.0
 
-output i_8 : Int8 @adc__a0 or rtlolarequest__s0 := 0
-output u_8 : UInt8 @adc__a0 or rtlolarequest__s0 := 0
+output i_8 : Int8 @adc__a0 := 0
+output u_8 : UInt8 @adc__a0 := 0
    
-output i_16 : Int16 @ adc__a0 or rtlolarequest__s0 := i_16.offset(by: -1).defaults(to: 0) + 1
-output u_16 : UInt16 @ adc__a0 or rtlolarequest__s0 := u_16.offset(by: -1).defaults(to: 0) + 1
+output i_16 : Int16 @ adc__a0 := i_16.offset(by: -1).defaults(to: 0) + 1
+output u_16 : UInt16 @ adc__a0 := u_16.offset(by: -1).defaults(to: 0) + 1
 
 output i_32 : Int32 @ 1Hz := i_32.offset(by: -1).defaults(to: 0) + 1
 output u_32 : UInt32 @ 1Hz := u_32.offset(by: -1).defaults(to: 0) + 1

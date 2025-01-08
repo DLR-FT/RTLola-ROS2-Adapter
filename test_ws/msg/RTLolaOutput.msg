@@ -3,9 +3,7 @@
 
 bool b
 float32 f_32
-float64 f_64 
-int8 i_8
-uint8 u_8
+float32 f_64 
 int16 i_16
 uint16 u_16
 int32 i_32

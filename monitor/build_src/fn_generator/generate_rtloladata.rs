@@ -7,7 +7,15 @@ use std::io::{Read, Write};
 use std::path::Path;
 
 impl RustFileGenerator {
-    pub fn generate_file_rtloladata(&self, topics: &Vec<(String, String)>) {
+    pub fn generate_file_rtloladata(
+        &self,
+        topics: &Vec<(String, String)>,
+        rtlolaout_service: &Option<(
+            String,
+            Vec<(String, String, i32)>,
+            Vec<(String, String, i32)>,
+        )>,
+    ) {
         // File that is generated
         // Build path for each topic
         let file_location = Path::new(&format!("{}/input/", self.dest_path)).join("rtloladata.rs");
@@ -26,6 +34,13 @@ impl RustFileGenerator {
                 topic_name
             ));
         }
+        let package_name = if let Some(service) = rtlolaout_service {
+            members.push_str(&"RTLolaRequest (RTLolaServiceRequest),".to_string());
+            includes.push_str(&"rtlola_request::RTLolaServiceRequest,".to_string());
+            Some(service.0.clone())
+        } else {
+            None
+        };
         // Read the contents of the file into a String
         let mut file_content = String::new();
         let crate_root = std::env::current_dir().expect("Failed to get current directory");
@@ -37,6 +52,22 @@ impl RustFileGenerator {
             .unwrap();
         // Replace each template parameter by the actual values
         file_content = file_content.replace("$MEMBERS$", &members);
+        if let Some(package_name) = package_name {
+            file_content = file_content.replace(
+                "$SERVICE$",
+                &format!(
+                    "use r2r::{{{}::srv::RTLolaService, ServiceRequest}};",
+                    package_name
+                ),
+            );
+            file_content = file_content.replace(
+                "$SERVICETYPE$",
+                "Service(RTLolaData, ServiceRequest<RTLolaService::Service>),",
+            );
+        } else {
+            file_content = file_content.replace("$SERVICE$", "");
+            file_content = file_content.replace("$SERVICETYPE$", "");
+        }
         file_content = file_content.replace("$INCLUDE$", &includes);
         // Write input source codeto file
         writeln!(&file, "{}", file_content).unwrap();

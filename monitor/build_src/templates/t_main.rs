@@ -8,8 +8,9 @@ pub mod input {
 }
 pub mod output {
     pub mod rtlolaout_publisher;
+    $SERVICEAVAILABLE$
     pub mod sink_error;
-    // pub mod rtlolaout_service;
+    pub mod transformations;
 }
 use crate::{
     input::rtloladata::RTLolaData, input::rtloladata::RTLolaDataFactory, ros2_handler::Ros2Handler,
