@@ -39,7 +39,7 @@ A comprehensive RTLola tutorial can be found [here](https://rtlola.cispa.de/play
 - `cd <path_repo>/test_ws`
 - `colcon build`
 - `source install/setup.bash`
-- `ros2 run tester_publisher tester`
+- `ros2 run rtlola_testnode testnode`
 - `cd <path_repo>/monitor`
 - fill out [ros2_config.toml](monitor/ros2_config.toml):
   - `generate_file = true` if new bindings shall be generated
