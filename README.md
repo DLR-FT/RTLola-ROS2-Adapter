@@ -45,7 +45,8 @@ A comprehensive RTLola tutorial can be found [here](https://rtlola.cispa.de/play
   - `generate_file = true` if new bindings shall be generated
   - `local_setup_script` should point to the ROS 2 overlay you want to generate bindings for
 - `cargo run -- ../specs/test_spec.lola`
-
+  
+Tested using Rust Version 1.87.0
 
 ## Contributors
 - Sebastian Schirmer
