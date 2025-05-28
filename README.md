@@ -17,7 +17,7 @@ Try it out by following the [getting started guidlines](#getting-started) using 
 
 > [ros2_config.toml](monitor/ros2_config.toml) allows you to freeze the binding by setting `generate_file` to `false`.
 
-> Members of a ros2 topic are prefixed by the package name, i.e., ``<package_name_lowercase>__<member>``. For instance, if the topic ``Adc`` has a member ``float32 a0``, then this member can be accessed by the RTLola specification using ``input adc__a0: Float32``.
+> Members of a ros2 topic are prefixed by the package name, i.e., ``<package_name_lowercase>__<member>``. For instance, if the topic ``Adc`` has a member ``float32 a0``, then this member can be accessed by the RTLola specification using ``input adc__a0: Float32``. If a member has a fixed array type, then the array is unfolded, i.e., ``float32[3] arr`` is unfolded to three inputs ``input adc__arr_0: Float32``,  ``input adc__arr_1: Float32``,  and ``input adc__arr_2: Float32``.
  
 For more RTLola information see [here](https://rtlola.cispa.de/).
 
