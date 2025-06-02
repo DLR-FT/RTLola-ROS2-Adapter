@@ -17,7 +17,7 @@ mod build_src {
     }
 }
 
-use build_src::config::Config;
+use build_src::config::{Config, QoS};
 use build_src::ros2_reader::Ros2Reader;
 use build_src::rust_file_generator::RustFileGenerator;
 use std::fs::{self};
@@ -37,29 +37,35 @@ fn main() {
     );
     // Start building
     let config = Config::new("ros2_config.toml");
-    if config.generate_file {
+    if config.GenerateFlag.generate {
         let ros2_reader: Ros2Reader = Ros2Reader::new(
-            config.blacklist.clone(),
+            config.Blacklist.topics.clone(),
             config.get_local_setup_script().clone(),
         );
         // Overwrite folders
-        fs::create_dir_all(format!("{}/", config.dest_path_generation)).unwrap();
-        fs::create_dir_all(format!("{}/input/", config.dest_path_generation)).unwrap();
-        fs::create_dir_all(format!("{}/output/", config.dest_path_generation)).unwrap();
+        fs::create_dir_all(format!("{}/", config.Destination.path)).unwrap();
+        fs::create_dir_all(format!("{}/input/", config.Destination.path)).unwrap();
+        fs::create_dir_all(format!("{}/output/", config.Destination.path)).unwrap();
 
         // Inputs
-        let subscribable_topics: Vec<(String, String)> = ros2_reader.get_subscribable_topics();
+        let subscribable_topics: Vec<(String, String, QoS)> =
+            ros2_reader.get_subscribable_topics(&config);
         // Outputs
         let rtlolaout_topic = ros2_reader.get_rtlola_output_msg();
         let rtlolaout_service = ros2_reader.get_rtlola_service();
         // Generate rust code for inputs and outputs
-        let mut rust_generator = RustFileGenerator::new(ros2_reader, config.dest_path_generation);
+        let mut rust_generator =
+            RustFileGenerator::new(ros2_reader, config.Destination.path.clone());
         rust_generator.generate_file_inputs(&subscribable_topics, &rtlolaout_service);
         rust_generator.generate_file_main(&subscribable_topics, rtlolaout_service.is_some());
-        rust_generator.generate_file_ros2handler(&subscribable_topics, rtlolaout_service.is_some());
+        rust_generator.generate_file_ros2handler(
+            &config,
+            &subscribable_topics,
+            rtlolaout_service.is_some(),
+        );
         rust_generator.generate_file_rtloladata(&subscribable_topics, &rtlolaout_service);
         rust_generator.generate_file_transformations();
-        rust_generator.generate_file_rtlolaout_publisher(&rtlolaout_topic);
+        rust_generator.generate_file_rtlolaout_publisher(&config, &rtlolaout_topic);
         rust_generator.generate_file_rtlolaout_service(&rtlolaout_service);
         rust_generator.generate_sink_error();
     };

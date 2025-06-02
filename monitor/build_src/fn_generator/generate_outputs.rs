@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::build_src::config::Config;
 use crate::build_src::rust_file_generator::RustFileGenerator;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -9,6 +10,7 @@ impl RustFileGenerator {
     // Create rtlola publisher
     pub fn generate_file_rtlolaout_publisher(
         &self,
+        config: &Config,
         rtlolaout_topic: &Option<(String, Vec<(String, String, i32)>)>,
     ) {
         match rtlolaout_topic {
@@ -103,6 +105,18 @@ impl RustFileGenerator {
                         }
                     }
                 }
+                let history = config.QoS_RTLolaOutput.history.clone();
+                let depth = config.QoS_RTLolaOutput.depth;
+                let reliability = config.QoS_RTLolaOutput.reliability.clone();
+                let durability = config.QoS_RTLolaOutput.durability.clone();
+                let deadline = config.QoS_RTLolaOutput.deadline_ms;
+                let lifespan = config.QoS_RTLolaOutput.lifespan_ms;
+                let liveliness = config.QoS_RTLolaOutput.liveliness.clone();
+                let liveliness_lease_duration =
+                    config.QoS_RTLolaOutput.liveliness_lease_duration_ms;
+                let avoid_ros_namespace_conventions =
+                    config.QoS_RTLolaOutput.avoid_ros_namespace_conventions;
+                let qos_topic = format!("QosProfile{{ history: HistoryPolicy::{history}, depth: {depth}, reliability: ReliabilityPolicy::{reliability}, durability: DurabilityPolicy::{durability}, deadline: Duration::from_millis({deadline}), lifespan: Duration::from_millis({lifespan}), liveliness: LivelinessPolicy::{liveliness}, liveliness_lease_duration: Duration::from_millis({liveliness_lease_duration}), avoid_ros_namespace_conventions: {avoid_ros_namespace_conventions} }}");
                 // Read the contents of the file into a String
                 let mut file_content = String::new();
                 let crate_root = std::env::current_dir().expect("Failed to get current directory");
@@ -114,6 +128,7 @@ impl RustFileGenerator {
                     .unwrap();
                 // Replace each template parameter by the actual values
                 file_content = file_content.replace("$RTLOLAPACKAGE$", rtlola_package.as_str());
+                file_content = file_content.replace("$QOS$", qos_topic.as_str());
                 file_content = file_content.replace("$OUTPUTNAMES$", &output_names);
                 file_content = file_content.replace("$DEFAULTVALUES$", &default_values);
                 file_content = file_content.replace("$VALUECHANGE$", &value_change);

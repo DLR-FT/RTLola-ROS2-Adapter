@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 bool b
+float32 arr_test
 float32 f_32
 float32 f_64 
 int16 i_16

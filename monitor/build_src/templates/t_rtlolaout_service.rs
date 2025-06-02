@@ -52,7 +52,7 @@ impl Ros2ServiceHandler {
         request: r2r::ServiceRequest<r2r::rtlola_testnode::srv::RTLolaService::Service>,
         verdicts: &Vec<Vec<(usize, Vec<Change>)>>,
     ) -> Result<(), SinkErr> {
-        println!("Response: {:?}", verdicts);
+        // println!("Response: {:?}", verdicts);
         for verdict in verdicts {
             for (sr, change) in verdict {
                 // Find matching stream in publish topic

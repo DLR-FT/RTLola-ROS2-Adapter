@@ -3,6 +3,7 @@
 
 use regex::Regex;
 
+use crate::build_src::config::QoS;
 use crate::build_src::ros2_reader::Ros2Reader;
 use crate::build_src::rust_file_generator::RustFileGenerator;
 use std::fs::File;
@@ -12,7 +13,7 @@ use std::path::Path;
 impl RustFileGenerator {
     pub fn generate_file_inputs(
         &mut self,
-        topics: &Vec<(String, String)>,
+        topics: &Vec<(String, String, QoS)>,
         rtlolaout_service: &Option<(
             String,
             Vec<(String, String, i32)>,
@@ -20,7 +21,7 @@ impl RustFileGenerator {
         )>,
     ) {
         // Reads each msg but ignore /RTLolaOutput
-        for (topic_name, msg_name) in topics {
+        for (topic_name, msg_name, _) in topics {
             // builds bash call uses the workaround script since the local ros2 setup.bash is not used and hence no information using ros2 interface can be received
             let (name_datatype, name_package, members_type_and_name) =
                 Ros2Reader::read_interface_msg(
@@ -77,14 +78,14 @@ impl RustFileGenerator {
             let rtlola_name = if name == "type" {
                 "type_".to_string()
             } else {
-                format!("{topic_name_lowercase}__{name}")
+                format!("{topic_name_lowercase}_{name}")
             };
             let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
                 name.to_string()
             } else {
-                let r = Regex::new(r"__\d").unwrap();
-                let m = r.find(name).unwrap();
+                let r = Regex::new(r"_\d").unwrap();
+                let m = r.find_iter(name).last().unwrap();
                 let name = &name[0..m.start()];
                 format!("{name}[{i}]")
             };
@@ -123,13 +124,13 @@ impl RustFileGenerator {
             let rtlola_name = if name == "type" {
                 "type_".to_string()
             } else {
-                format!("rtlolarequest__{name}")
+                format!("rtlolarequest_{name}")
             };
             let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
                 name.to_string()
             } else {
-                let r = Regex::new(r"__\d").unwrap();
+                let r = Regex::new(r"_\d").unwrap();
                 let m = r.find(name).unwrap();
                 let name = &name[0..m.start()];
                 format!("{name}[{i}]")

@@ -13,6 +13,6 @@ float32 height_above_mean_sea_level
 float32 horizontal_accuracy_estimate
 #in m
 float32 vertical_accuracy_estimate
-# test arra
+# test array
 float32[3] data_3
 float32[2] data_n

@@ -11,6 +11,7 @@ use crate::{
 };
 use futures::{stream_select, StreamExt};
 use r2r::{
+    qos::{HistoryPolicy, ReliabilityPolicy, DurabilityPolicy, LivelinessPolicy},
     rtlola_testnode::msg::{$ROS2MSGS$},
     QosProfile,
 };
@@ -28,8 +29,6 @@ impl Ros2Handler {
     ) -> Result<(), Box<dyn Error>> {
         // r2r context
         let ctx = r2r::Context::create().unwrap();
-        // quality of service
-        let qos = QosProfile::default();
         // creates ros2 node
         let mut node = r2r::Node::create(ctx, "rtlola", "").unwrap();
         // creates subscribers

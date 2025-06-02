@@ -1,13 +1,51 @@
 # SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 # SPDX-License-Identifier: Apache-2.0
 
-generate_file = true
+# allows to freeze, i.e., disables build.rs
+[GenerateFlag]
+generate = true
 
 # location of the local ros2 setup that shall be used to get message interface information e.g. "/root/repos/DLR/tester/install/setup.bash"
+[LocalSetupScript]
 local_setup_script = [  "../test_ws/install/setup.bash" ]   
 
+# Quality of service
+[QoS_Default]
+history = "KeepLast"                            # Options: KeepAll, KeepLast, SystemDefault, Unknown
+depth = 10                                      # integer for queue size
+reliability = "Reliable"                        # Options: BestEffort, Reliable, SystemDefault
+durability = "Volatile"                         # Options: TransientLocal, Volatile, SystemDefault, Unknown
+deadline_ms = 20000                             # in milliseconds
+lifespan_ms = 20000                             # in milliseconds
+liveliness = "Automatic"                        # Options: Automatic, ManualByTopic, SystemDefault, Unknown
+liveliness_lease_duration_ms = 20000            # in milliseconds
+avoid_ros_namespace_conventions = false         # set to false to use ROS prefix and true to not using ROS namespace prefixing
+
+[QoS_RTLolaOutput] 
+history = "KeepLast"                            # Options: KeepAll, KeepLast, SystemDefault, Unknown
+depth = 10                                      # integer for queue size
+reliability = "Reliable"                        # Options: BestEffort, Reliable, SystemDefault
+durability = "Volatile"                         # Options: TransientLocal, Volatile, SystemDefault, Unknown
+deadline_ms = 20000                             # in milliseconds
+lifespan_ms = 20000                             # in milliseconds
+liveliness = "Automatic"                        # Options: Automatic, ManualByTopic, SystemDefault, Unknown
+liveliness_lease_duration_ms = 20000            # in milliseconds
+avoid_ros_namespace_conventions = false         # set to false to use ROS prefix and true to not using ROS namespace prefixing
+
+[QoS_RTLolaService]
+history = "KeepLast"                            # Options: KeepAll, KeepLast, SystemDefault, Unknown
+depth = 10                                      # integer for queue size
+reliability = "Reliable"                        # Options: BestEffort, Reliable, SystemDefault
+durability = "Volatile"                         # Options: TransientLocal, Volatile, SystemDefault, Unknown
+deadline_ms = 0                                 # in milliseconds
+lifespan_ms = 0                                 # in milliseconds
+liveliness = "SystemDefault"                    # Options: Automatic, ManualByTopic, SystemDefault, Unknown
+liveliness_lease_duration_ms = 0                # in milliseconds
+avoid_ros_namespace_conventions = false         # set to false to use ROS prefix and true to not using ROS namespace prefixing
+
 # Topic messages that should be ignored
-blacklist = [   "rcl_interfaces/msg/ParameterEvent", 
+[Blacklist]
+topics = [   "rcl_interfaces/msg/ParameterEvent", 
                 "rcl_interfaces/msg/Log", 
                 "px4_msgs/msg/DebugArray", 
                 "px4_msgs/msg/DebugKeyValue", 
@@ -18,5 +56,7 @@ blacklist = [   "rcl_interfaces/msg/ParameterEvent",
                 "tester_publisher/msg/topic_lidar_reflect",
                 "px4_msgs/msg/Timesync"
             ]
+
 # Location where the generated files shall be located
-dest_path_generation = "src_generated/"
+[Destination]
+path = "src_generated/"

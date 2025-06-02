@@ -1,20 +1,20 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
-use crate::build_src::rust_file_generator::RustFileGenerator;
+use crate::build_src::{config::QoS, rust_file_generator::RustFileGenerator};
 use std::{
     fs::File,
     io::{Read, Write},
 };
 
 impl RustFileGenerator {
-    pub fn generate_file_main(&self, topics: &Vec<(String, String)>, has_service: bool) {
+    pub fn generate_file_main(&self, topics: &Vec<(String, String, QoS)>, has_service: bool) {
         // File that is generated
         let file_location = format!("{}/main.rs", self.dest_path);
         let file = File::create(&file_location).unwrap();
         // Create file content
         let mut pub_mods_content = String::new();
-        for (topic_name, _) in topics {
+        for (topic_name, _, _) in topics {
             let parts: Vec<&str> = topic_name.split('/').collect();
             let topic_name = parts.last().unwrap().to_lowercase();
             pub_mods_content.push_str(&format!("\t\tpub mod {topic_name};\n"));

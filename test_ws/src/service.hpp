@@ -16,7 +16,7 @@ public:
     ServiceRequest(rclcpp::Node *node) : m_node(node)
     {
         rclcpp::QoS qos(10);
-        // qos.best_effort();
+        qos.reliable();
         m_request_client = m_node->create_client<rtlola_testnode::srv::RTLolaService>("RTLolaService");
         m_timer_ = m_node->create_wall_timer(1s, std::bind(&ServiceRequest::task, this));
     }

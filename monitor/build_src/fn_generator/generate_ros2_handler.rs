@@ -1,12 +1,18 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::build_src::config::{Config, QoS};
 use crate::build_src::rust_file_generator::RustFileGenerator;
 use std::fs::File;
 use std::io::{Read, Write};
 
 impl RustFileGenerator {
-    pub fn generate_file_ros2handler(&self, topics: &Vec<(String, String)>, has_service: bool) {
+    pub fn generate_file_ros2handler(
+        &self,
+        config: &Config,
+        topics: &Vec<(String, String, QoS)>,
+        has_service: bool,
+    ) {
         // File that is generated
         let file_location = format!("{}/ros2_handler.rs", self.dest_path);
         let file = File::create(&file_location).unwrap();
@@ -15,13 +21,25 @@ impl RustFileGenerator {
         let mut ros2_msgs = String::new();
         let mut subscribers = String::new();
         let service = if has_service {
-            "let service = node.create_service::<r2r::rtlola_testnode::srv::RTLolaService::Service>(\"/RTLolaService\",qos,)?.map(|d| {RTLolaType::Service(RTLolaData::RTLolaRequest(RTLolaServiceRequest::from(d.message.clone())),d,)});"
+            let history = config.QoS_RTLolaService.history.clone();
+            let depth = config.QoS_RTLolaService.depth;
+            let reliability = config.QoS_RTLolaService.reliability.clone();
+            let durability = config.QoS_RTLolaService.durability.clone();
+            let deadline = config.QoS_RTLolaService.deadline_ms;
+            let lifespan = config.QoS_RTLolaService.lifespan_ms;
+            let liveliness = config.QoS_RTLolaService.liveliness.clone();
+            let liveliness_lease_duration = config.QoS_RTLolaService.liveliness_lease_duration_ms;
+            let avoid_ros_namespace_conventions =
+                config.QoS_RTLolaService.avoid_ros_namespace_conventions;
+            let qos_topic = format!("QosProfile{{ history: HistoryPolicy::{history}, depth: {depth}, reliability: ReliabilityPolicy::{reliability}, durability: DurabilityPolicy::{durability}, deadline: Duration::from_millis({deadline}), lifespan: Duration::from_millis({lifespan}), liveliness: LivelinessPolicy::{liveliness}, liveliness_lease_duration: Duration::from_millis({liveliness_lease_duration}), avoid_ros_namespace_conventions: {avoid_ros_namespace_conventions} }}");
+
+            format!("let service = node.create_service::<r2r::rtlola_testnode::srv::RTLolaService::Service>(\"/RTLolaService\",{qos_topic},)?.map(|d| {{RTLolaType::Service(RTLolaData::RTLolaRequest(RTLolaServiceRequest::from(d.message.clone())),d,)}});")
         } else {
-            ""
+            String::from("")
         };
         let mut select_statement = String::new();
         // Build statements
-        for (topic, _) in topics {
+        for (topic, _, qos) in topics {
             let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
             rtlola_enum.push_str(&format!(
@@ -29,9 +47,19 @@ impl RustFileGenerator {
                 topic_name.to_lowercase()
             ));
             ros2_msgs.push_str(&format!("{topic_name},"));
+            let history = qos.history.clone();
+            let depth = qos.depth;
+            let reliability = qos.reliability.clone();
+            let durability = qos.durability.clone();
+            let deadline = qos.deadline_ms;
+            let lifespan = qos.lifespan_ms;
+            let liveliness = qos.liveliness.clone();
+            let liveliness_lease_duration = qos.liveliness_lease_duration_ms;
+            let avoid_ros_namespace_conventions = qos.avoid_ros_namespace_conventions;
+            let qos_topic = format!("QosProfile{{ history: HistoryPolicy::{history}, depth: {depth}, reliability: ReliabilityPolicy::{reliability}, durability: DurabilityPolicy::{durability}, deadline: Duration::from_millis({deadline}), lifespan: Duration::from_millis({lifespan}), liveliness: LivelinessPolicy::{liveliness}, liveliness_lease_duration: Duration::from_millis({liveliness_lease_duration}), avoid_ros_namespace_conventions: {avoid_ros_namespace_conventions} }}");
             subscribers.push_str(&format!(
                 "let {}_subscriber = node
-            .subscribe::<{topic_name}>(\"{topic}\", qos.clone())?
+            .subscribe::<{topic_name}>(\"{topic}\", {qos_topic})?
             .map(|d| RTLolaType::Subscription(RTLolaData::{topic_name}(RTLola{topic_name}::from(d))));",
                 topic_name.to_lowercase()
             ));
@@ -50,7 +78,7 @@ impl RustFileGenerator {
         file_content = file_content.replace("$RTLOLAENUM$", &rtlola_enum);
         file_content = file_content.replace("$ROS2MSGS$", &ros2_msgs);
         file_content = file_content.replace("$SUBSCRIBERS$", &subscribers);
-        file_content = file_content.replace("$SERVICE$", service);
+        file_content = file_content.replace("$SERVICE$", &service);
         if has_service {
             select_statement.push_str("service");
             file_content = file_content.replace(

@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
+use crate::build_src::config::QoS;
 use crate::build_src::rust_file_generator::RustFileGenerator;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -9,7 +10,7 @@ use std::path::Path;
 impl RustFileGenerator {
     pub fn generate_file_rtloladata(
         &self,
-        topics: &Vec<(String, String)>,
+        topics: &Vec<(String, String, QoS)>,
         rtlolaout_service: &Option<(
             String,
             Vec<(String, String, i32)>,
@@ -24,7 +25,7 @@ impl RustFileGenerator {
         let mut members = String::new();
         let mut includes = String::new();
         // Build statements
-        for (topic, _) in topics {
+        for (topic, _, _) in topics {
             let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
             members.push_str(&format!("{topic_name} (RTLola{topic_name}),"));

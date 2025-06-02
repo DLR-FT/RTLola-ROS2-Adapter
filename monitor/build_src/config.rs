@@ -3,12 +3,49 @@
 
 use serde::Deserialize;
 
-#[derive(Deserialize, Debug)]
+#[allow(non_snake_case)]
+#[derive(Debug, Deserialize)]
 pub struct Config {
-    pub generate_file: bool,
-    local_setup_script: Vec<String>,
-    pub blacklist: Vec<String>,
-    pub dest_path_generation: String,
+    pub GenerateFlag: GenerateFlag,
+    pub LocalSetupScript: LocalSetupScript,
+    pub QoS_Default: QoS,
+    pub QoS_RTLolaOutput: QoS,
+    pub QoS_RTLolaService: QoS,
+    pub Blacklist: Blacklist,
+    pub Destination: Destination,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct GenerateFlag {
+    pub generate: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LocalSetupScript {
+    pub local_setup_script: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct QoS {
+    pub history: String,
+    pub depth: u32,
+    pub reliability: String,
+    pub durability: String,
+    pub deadline_ms: u64,
+    pub lifespan_ms: u64,
+    pub liveliness: String,
+    pub liveliness_lease_duration_ms: u64,
+    pub avoid_ros_namespace_conventions: bool,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Blacklist {
+    pub topics: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Destination {
+    pub path: String,
 }
 
 impl Config {
@@ -20,12 +57,12 @@ impl Config {
 
     /// Returns the location of the local setup script used for ros2
     pub fn get_local_setup_script(&self) -> String {
-        let local_setup_script: String = if self.local_setup_script.is_empty() {
+        let local_setup_script: String = if self.LocalSetupScript.local_setup_script.is_empty() {
             panic!(
                 "You need to specify the location of your ./install/setup.bash that should be sourced!"
             );
         } else {
-            self.local_setup_script.join(" ")
+            self.LocalSetupScript.local_setup_script.join(" ")
         };
         local_setup_script
     }

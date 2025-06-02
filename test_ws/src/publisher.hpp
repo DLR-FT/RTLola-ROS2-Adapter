@@ -33,6 +33,9 @@ public:
     {
         m_count++;
         auto msg = rtlola_testnode::msg::Adc();
+        msg.arr[0] = 1.0+m_count;
+        msg.arr[1] = 1.0+m_count;
+        msg.arr[2] = 1.0+m_count;
         get_voltage(m_count, msg.a0, msg.a0_read_failed);
         get_voltage(m_count, msg.a1, msg.a1_read_failed);
         get_voltage(m_count, msg.a2, msg.a2_read_failed);

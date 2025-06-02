@@ -1,6 +1,8 @@
 # SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 # SPDX-License-Identifier: Apache-2.0
 
+# Test fixed sized float array
+float32[3] arr
 #Voltage board in V
 float32 a0
 #Voltage servo rail in V

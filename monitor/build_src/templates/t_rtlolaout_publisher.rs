@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
 // SPDX-License-Identifier: Apache-2.0
 
-use r2r::{$RTLOLAPACKAGE$, Node, Publisher, QosProfile};
+use r2r::{$RTLOLAPACKAGE$, Node, Publisher, QosProfile, qos::{HistoryPolicy, ReliabilityPolicy, DurabilityPolicy, LivelinessPolicy}};
 use rtlola_interpreter::{monitor::Change,rtlola_mir::RtLolaMir};
+use tokio::time::Duration;
 use super::sink_error::SinkErr;
 use super::transformations::*;
 pub struct Ros2Publisher {
@@ -14,7 +15,7 @@ pub struct Ros2Publisher {
 impl Ros2Publisher {
     pub fn new(ir: &RtLolaMir, node: &mut Node) -> Result<Self, SinkErr> {
         let publisher = node
-            .create_publisher::<RTLolaOutput>("/RTLolaOutput", QosProfile::default())
+            .create_publisher::<RTLolaOutput>("/RTLolaOutput", $QOS$)
             .map_err(SinkErr::R2rError)?;
         let mut streams = vec![];
         let look_for = [$OUTPUTNAMES$];
@@ -53,7 +54,7 @@ impl Ros2Publisher {
     }
 
     pub fn publish(&mut self, verdicts: Vec<Vec<(usize, Vec<Change>)>>) -> Result<(), SinkErr> {
-        println!("Published: {:?}", verdicts);
+        // println!("Published: {:?}", verdicts);
         for verdict in verdicts {
             for (sr, change) in verdict {
                 // Find matching stream in publish topic
