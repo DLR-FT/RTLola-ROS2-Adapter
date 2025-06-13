@@ -48,6 +48,8 @@ A comprehensive RTLola tutorial can be found [here](https://rtlola.cispa.de/play
   
 Tested using Rust Version 1.87.0
 
+> If you want to use ``ros2 run rtlola_node rtlola_ros2_monitor`` then call ``colcon build`` within [rtlola_node](rtlola_node) to build a workspace you can source (ie the monitor must be build first).
+
 ## Contributors
 - Sebastian Schirmer
   
