@@ -6,6 +6,8 @@ SPDX-License-Identifier: CC-BY-NC-ND-4.0
 
 [![experimental](http://badges.github.io/stability-badges/dist/experimental.svg)](http://github.com/badges/stability-badges)
 
+> This tool is based on the paper [A Ros Adapter for RTLola](https://doi.org/10.1007/978-3-032-05435-7_6), which was published at [RV'25](https://rv25.isec.tugraz.at/).
+
 > This work is ongoing, and I plan to add features in the future. Feel free to share any requests! You can reach me via sebastian dot schirmer at dlr dot de or open an issue.
 # RTLola-Ros2-Monitor
 
