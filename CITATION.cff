@@ -1,0 +1,53 @@
+#SPDX-FileCopyrightText: 2023 German Aerospace Center (DLR)
+#SPDX-License-Identifier: CC-BY-NC-ND-4.0
+
+cff-version: 1.2.0
+message: "If you use this software or want to refer to our paper, please cite it as below."
+authors:
+- family-names: "Schirmer"
+  given-names: "Sebastian"
+  orcid: "https://orcid.org/0000-0002-4596-2479"
+- family-names: "Baumeister"
+  given-names: "Jan"
+  orcid: "https://orcid.org/0000-0002-8891-7483"
+- family-names: "Finkbeiner"
+  given-names: "Bernd"
+  orcid: "https://orcid.org/0000-0002-4280-8441"
+- family-names: "Jünger"
+  given-names: "Franz"
+  orcid: ""
+- family-names: "Kohn"
+  given-names: "Florian"
+  orcid: "https://orcid.org/0000-0001-9672-2398"
+- family-names: "Torens"
+  given-names: "Christoph"
+  orcid: "https://orcid.org/0000-0002-0651-4390"
+title: "A ROS Adapter for RTLola"
+version: 1.0.0
+date-released: 2025-09-12
+url: "https://github.com/DLR-FT/RTLola-ROS2-Adapter"
+preferred-citation:
+  type: proceedings
+  authors:
+  - family-names: "Schirmer"
+    given-names: "Sebastian"
+    orcid: "https://orcid.org/0000-0002-4596-2479"
+  - family-names: "Baumeister"
+    given-names: "Jan"
+    orcid: "https://orcid.org/0000-0002-8891-7483"
+  - family-names: "Finkbeiner"
+    given-names: "Bernd"
+    orcid: "https://orcid.org/0000-0002-4280-8441"
+  - family-names: "Jünger"
+    given-names: "Franz"
+    orcid: ""
+  - family-names: "Kohn"
+    given-names: "Florian"
+    orcid: "https://orcid.org/0000-0001-9672-2398"
+  - family-names: "Torens"
+    given-names: "Christoph"
+    orcid: "https://orcid.org/0000-0002-0651-4390"
+  doi: "10.1007/978-3-032-05435-7_6"
+  journal: "RV'25"
+  title: "A ROS Adapter for RTLola"
+  year: 2025
