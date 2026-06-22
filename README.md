@@ -42,6 +42,8 @@ A comprehensive RTLola tutorial can be found [here](https://rtlola.cispa.de/play
 - `colcon build`
 - `source install/setup.bash`
 - `ros2 run rtlola_testnode testnode`
+- start new terminal
+- `source <path_repo>/test_ws/install/setup.bash`
 - `cd <path_repo>/monitor`
 - fill out [ros2_config.toml](monitor/ros2_config.toml):
   - `generate_file = true` if new bindings shall be generated
