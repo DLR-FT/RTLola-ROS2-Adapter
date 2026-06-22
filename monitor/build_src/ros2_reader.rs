@@ -71,7 +71,8 @@ impl Ros2Reader {
                 "RMW_QOS_POLICY_HISTORY_KEEP_LAST" => String::from("KeepLast"),
                 "RMW_QOS_POLICY_HISTORY_KEEP_ALL" => String::from("KeepAll"),
                 "RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT" => String::from("SystemDefault"),
-                _ => String::from("Unknown"),
+                "RMW_QOS_POLICY_HISTORY_UNKNOWN" => String::from("Unknown"),
+                _ => config.QoS_Default.history.clone()
             }
         } else {
             config.QoS_Default.history.clone()
@@ -90,7 +91,8 @@ impl Ros2Reader {
                     "RMW_QOS_POLICY_RELIABILITY_RELIABLE" => String::from("Reliable"),
                     "RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT" => String::from("BestEffort"),
                     "RMW_QOS_POLICY_RELIABILITY_SYSTEM_DEFAULT" => String::from("SystemDefault"),
-                    _ => String::from("Unknown"),
+                    "RMW_QOS_POLICY_RELIABILITY_UNKNOWN" => String::from("Unknown"),
+                    _ => config.QoS_Default.reliability.clone(),
                 }
             } else {
                 config.QoS_Default.reliability.clone()
@@ -101,7 +103,8 @@ impl Ros2Reader {
                     "RMW_QOS_POLICY_DURABILITY_TRANSIENT_LOCAL" => String::from("TransientLocal"),
                     "RMW_QOS_POLICY_DURABILITY_VOLATILE" => String::from("Volatile"),
                     "RMW_QOS_POLICY_DURABILITY_SYSTEM_DEFAULT" => String::from("SystemDefault"),
-                    _ => String::from("Unknown"),
+                    "RMW_QOS_POLICY_DURABILITY_UNKNOWN" => String::from("Unknown"),
+                    _ => config.QoS_Default.durability.clone(),
                 }
             } else {
                 config.QoS_Default.durability.clone()
@@ -134,7 +137,8 @@ impl Ros2Reader {
                     "RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT" => String::from("SystemDefault"),
                     "RMW_QOS_POLICY_LIVELINESS_AUTOMATIC" => String::from("Automatic"),
                     "RMW_QOS_POLICY_LIVELINESS_MANUAL_BY_TOPIC" => String::from("ManualByTopic"),
-                    _ => String::from("Unknown"),
+                    "RMW_QOS_POLICY_LIVELINESS_UNKNOWN" => String::from("Unknown"),
+                    _ => config.QoS_Default.liveliness.clone(),
                 }
             } else {
                 config.QoS_Default.liveliness.clone()
