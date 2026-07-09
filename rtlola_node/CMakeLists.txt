@@ -3,6 +3,26 @@
 cmake_minimum_required(VERSION 3.5)
 project(rtlola_node)
 
+
+###
+# Build the monitor first
+###
+
+execute_process(
+    COMMAND cargo build
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/../monitor
+    RESULT_VARIABLE CARGO_RESULT
+)
+
+if(NOT CARGO_RESULT EQUAL 0)
+    message(FATAL_ERROR "cargo build failed")
+endif()
+
+
+###
+# Wrap the result as a Ros2 Node
+###
+
 find_package(ament_cmake REQUIRED)
 
 set(MONITOR_EXECUTABLE ${CMAKE_CURRENT_SOURCE_DIR}/../monitor/target/release/rtlola_ros2_monitor)

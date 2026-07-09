@@ -16,14 +16,11 @@ use crate::{
     input::rtloladata::RTLolaData, input::rtloladata::RTLolaDataFactory, ros2_handler::Ros2Handler,
 };
 use rtlola_interpreter::{input::AssociatedFactory, monitor::Incremental, ConfigBuilder, Monitor};
-use std::{env, fs};
+use std::fs;
 
 #[tokio::main]
 async fn main() {
-    let args: Vec<String> = env::args().collect();
-    assert_eq!(args.len(), 2);
-    // Reads specification
-    let spec = fs::read_to_string(&args[1]).unwrap();
+    let spec = fs::read_to_string("$SPECLOCATION$").unwrap();
     // Creates monitor
     let monitor: Monitor<RTLolaDataFactory, rtlola_interpreter::config::OnlineMode> =
         ConfigBuilder::new()
