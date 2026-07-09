@@ -8,7 +8,7 @@ use std::{
 };
 
 impl RustFileGenerator {
-    pub fn generate_file_main(&self, topics: &Vec<(String, String, QoS)>, has_service: bool) {
+    pub fn generate_file_main(&self, spec_location: &String, topics: &Vec<(String, String, QoS)>, has_service: bool) {
         // File that is generated
         let file_location = format!("{}/main.rs", self.dest_path);
         let file = File::create(&file_location).unwrap();
@@ -35,6 +35,7 @@ impl RustFileGenerator {
             file_content = file_content.replace("$SERVICEAVAILABLE$", "");
         }
         file_content = file_content.replace("$INPUTMODS$", &pub_mods_content);
+        file_content = file_content.replace("$SPECLOCATION$", &spec_location);
         // Write input source codeto file
         writeln!(&file, "{}", file_content).unwrap();
         // Format generated file

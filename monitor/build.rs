@@ -57,7 +57,7 @@ fn main() {
         let mut rust_generator =
             RustFileGenerator::new(ros2_reader, config.Destination.path.clone());
         rust_generator.generate_file_inputs(&subscribable_topics, &rtlolaout_service);
-        rust_generator.generate_file_main(&subscribable_topics, rtlolaout_service.is_some());
+        rust_generator.generate_file_main( &config.Specification.location, &subscribable_topics, rtlolaout_service.is_some());
         rust_generator.generate_file_ros2handler(
             &config,
             &subscribable_topics,

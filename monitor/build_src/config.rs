@@ -6,6 +6,7 @@ use serde::Deserialize;
 #[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 pub struct Config {
+    pub Specification: Specification,
     pub GenerateFlag: GenerateFlag,
     pub LocalSetupScript: LocalSetupScript,
     pub QoS_Default: QoS,
@@ -13,6 +14,11 @@ pub struct Config {
     pub QoS_RTLolaService: QoS,
     pub Blacklist: Blacklist,
     pub Destination: Destination,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct Specification {
+    pub location: String,
 }
 
 #[derive(Debug, Deserialize)]
