@@ -72,7 +72,7 @@ impl Ros2Reader {
                 "RMW_QOS_POLICY_HISTORY_KEEP_ALL" => String::from("KeepAll"),
                 "RMW_QOS_POLICY_HISTORY_SYSTEM_DEFAULT" => String::from("SystemDefault"),
                 "RMW_QOS_POLICY_HISTORY_UNKNOWN" => String::from("Unknown"),
-                _ => config.QoS_Default.history.clone()
+                _ => config.QoS_Default.history.clone(),
             }
         } else {
             config.QoS_Default.history.clone()
@@ -187,7 +187,11 @@ impl Ros2Reader {
                 let msg_name = tmp[idx.start()..idx.end()].to_string();
                 let (_, _, members_type_and_name) =
                     Self::read_interface_msg(&self.location_setup_script, &msg_name);
-                Some((msg_name, members_type_and_name))
+                if let Ok(m_t_n) = members_type_and_name {
+                    Some((msg_name, m_t_n))
+                } else {
+                    None
+                }
             }
             None => None,
         };
@@ -218,7 +222,15 @@ impl Ros2Reader {
                 let msg_name = tmp[idx.start()..idx.end()].to_string();
                 let (_, package, request, response) =
                     Self::read_interface_srv(&self.location_setup_script, &msg_name);
-                Some((package, request, response))
+                if let Ok(result_req) = request {
+                    if let Ok(result_resp) = response {
+                        Some((package, result_req, result_resp))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
             }
             None => None,
         };
@@ -230,7 +242,7 @@ impl Ros2Reader {
     pub fn read_interface_msg(
         local_setup_script: &String,
         msg_name: &String,
-    ) -> (String, String, Vec<(String, String, i32)>) {
+    ) -> (String, String, Result<Vec<(String, String, i32)>, String>) {
         let call = format!(
             "source workaround_ros2_local_setup.bash 0 {} {}",
             msg_name, local_setup_script
@@ -261,8 +273,8 @@ impl Ros2Reader {
     ) -> (
         String,
         String,
-        Vec<(String, String, i32)>,
-        Vec<(String, String, i32)>,
+        Result<Vec<(String, String, i32)>, String>,
+        Result<Vec<(String, String, i32)>, String>,
     ) {
         let call = format!(
             "source workaround_ros2_local_setup.bash 0 {} {}",
@@ -297,65 +309,89 @@ impl Ros2Reader {
     }
 }
 
-fn get_type_name(msg_name: String, tmp: String) -> Vec<(String, String, i32)> {
-    let members_type_and_name: Vec<(String, String, i32)> = tmp
-        .split('\n')
+fn get_type_name(msg_name: String, tmp: String) -> Result<Vec<(String, String, i32)>, String> {
+    tmp.split('\n')
         .filter(|s| {
             let s = s.trim();
+
             let equal_before_hash =
                 if let (Some(pos_equal), Some(pos_hash)) = (s.find('='), s.find('#')) {
                     pos_equal < pos_hash
                 } else {
                     matches!((s.find('='), s.find('#')), (Some(_), None))
                 };
+
             !(s.starts_with('#') || s.is_empty() || equal_before_hash)
         })
-        .flat_map(|ss| {
+        .map(|ss| {
             let ss = ss.trim();
-            // Regex that is used to remove unnecessary \s
+
             let r = Regex::new(r"\s+").unwrap();
             let s = r.replace_all(ss, " ").to_string();
-            // Regex that is used to split messages
-            let r = Regex::new(r"\s").unwrap();
-            let mut split_iter = r.split(s.trim());
-            let ty = split_iter.next().unwrap().to_string();
+
+            let mut split_iter = s.split_whitespace();
+
+            let mut ty = split_iter
+                .next()
+                .ok_or_else(|| format!("Missing type in {}: {}", msg_name, ss))?
+                .to_string();
+
             let r = Regex::new(r"\[\d+\]").unwrap();
-            let (ty, arr_size) = if let Some(m) = r.find(&ty) {
-                (
-                    ty[0..m.start()].to_string(),
-                    ty[m.start() + 1..m.end() - 1].parse::<usize>().unwrap(),
-                )
+
+            let arr_size = if let Some(m) = r.find(&ty) {
+                let size = ty[m.start() + 1..m.end() - 1]
+                    .parse::<usize>()
+                    .map_err(|e| e.to_string())?;
+
+                ty.truncate(m.start());
+                size
             } else {
-                (ty, 0_usize)
+                0
             };
+
             match ty.as_str() {
                 "bool" | "float32" | "float64" | "int8" | "uint8" | "int16" | "uint16"
-                | "int32" | "uint32" | "int64" | "uint64" => (),
-                "byte" | "char" | "string" => todo!(),
-                _ => panic!(
-                    "Unsupported Ros2 Type in {}: {}[{}]\n(full line:  {}   )",
-                    msg_name,
-                    ty.as_str(),
-                    arr_size,
-                    ss
-                ),
-            };
-            let name = split_iter.next().unwrap().to_string();
+                | "int32" | "uint32" | "int64" | "uint64" => {}
+
+                "byte" | "char" | "string" => {
+                    return Err(format!(
+                        "Unsupported ROS2 type in {}: {}[{}]\n(full line: {})",
+                        msg_name, ty, arr_size, ss
+                    ));
+                }
+
+                _ => {
+                    return Err(format!(
+                        "Unsupported ROS2 type in {}: {}[{}]\n(full line: {})",
+                        msg_name, ty, arr_size, ss
+                    ));
+                }
+            }
+
+            let name = split_iter
+                .next()
+                .ok_or_else(|| format!("Missing field name in {}: {}", msg_name, ss))?
+                .to_string();
+
             if let Some(s) = split_iter.next() {
                 if !s.starts_with('#') {
-                    panic!("Expected type and name, but more were given: {}", ss);
+                    return Err(format!(
+                        "Expected type and name, but more were given: {}",
+                        ss
+                    ));
                 }
             }
-            let mut ty_name_vec = Vec::<(String, String, i32)>::new();
-            if arr_size == 0 {
-                ty_name_vec.push((ty, name, -1));
+
+            let result = if arr_size == 0 {
+                vec![(ty, name, -1)]
             } else {
-                for i in 0..arr_size {
-                    ty_name_vec.push((ty.clone(), format!("{}_{}", name, i), i as i32));
-                }
-            }
-            ty_name_vec
+                (0..arr_size)
+                    .map(|i| (ty.clone(), format!("{}_{}", name, i), i as i32))
+                    .collect()
+            };
+
+            Ok(result)
         })
-        .collect();
-    members_type_and_name
+        .collect::<Result<Vec<Vec<_>>, String>>()
+        .map(|v| v.into_iter().flatten().collect())
 }
