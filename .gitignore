@@ -4,6 +4,8 @@
 */debug/
 */target/
 */install
+*/build
+*/log
 test_ws/build
 test_ws/log
 src_generated

@@ -8,7 +8,12 @@ use std::{
 };
 
 impl RustFileGenerator {
-    pub fn generate_file_main(&self, spec_location: &String, topics: &Vec<(String, String, QoS)>, has_service: bool) {
+    pub fn generate_file_main(
+        &self,
+        spec_location: &String,
+        topics: &Vec<(String, String, QoS)>,
+        has_service: bool,
+    ) {
         // File that is generated
         let file_location = format!("{}/main.rs", self.dest_path);
         let file = File::create(&file_location).unwrap();

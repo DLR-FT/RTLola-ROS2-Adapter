@@ -21,6 +21,7 @@ impl RustFileGenerator {
         )>,
     ) {
         // Reads each msg but ignore /RTLolaOutput
+        let mut errors = Vec::<String>::new();
         for (topic_name, msg_name, _) in topics {
             // builds bash call uses the workaround script since the local ros2 setup.bash is not used and hence no information using ros2 interface can be received
             let (name_datatype, name_package, members_type_and_name) =
@@ -39,15 +40,24 @@ impl RustFileGenerator {
                 .join(format!("{}.rs", name_datatype.to_lowercase()));
             // Creates file
             let file = File::create(&new_file_location).unwrap();
-            // Create content of file
-            self.create_input_ros2_msg(
-                file,
-                name_package.to_string(),
-                name_datatype.to_string(),
-                &members_type_and_name,
-            );
-            // Format generated file
-            RustFileGenerator::cargo_fmt_file(new_file_location.to_str().unwrap());
+            // Filter errors
+            match members_type_and_name {
+                Ok(m_t_n) => {
+                    // Create content of file
+                    self.create_input_ros2_msg(
+                        file,
+                        name_package.to_string(),
+                        name_datatype.to_string(),
+                        &m_t_n,
+                    );
+                    // Format generated file
+                    RustFileGenerator::cargo_fmt_file(new_file_location.to_str().unwrap());
+                }
+                Err(r) => errors.push(r),
+            }
+        }
+        if !errors.is_empty() {
+            panic!("{}", errors.join("\n\n"));
         }
         // Create Service Request as input
         if let Some((name, request, _response)) = rtlolaout_service {

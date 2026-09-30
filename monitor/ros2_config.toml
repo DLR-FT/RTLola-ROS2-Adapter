@@ -48,17 +48,7 @@ avoid_ros_namespace_conventions = false         # set to false to use ROS prefix
 
 # Topic messages that should be ignored
 [Blacklist]
-topics = [   "rcl_interfaces/msg/ParameterEvent", 
-                "rcl_interfaces/msg/Log", 
-                "px4_msgs/msg/DebugArray", 
-                "px4_msgs/msg/DebugKeyValue", 
-                "px4_msgs/msg/DebugVect", 
-                "px4_msgs/msg/PositionSetpointTriplet",
-                "px4_msgs/msg/VehicleTrajectoryBezier",
-                "px4_msgs/msg/VehicleTrajectoryWaypoint",
-                "tester_publisher/msg/topic_lidar_reflect",
-                "px4_msgs/msg/Timesync"
-            ]
+topics = [ "rcl_interfaces/msg/ParameterEvent", "rcl_interfaces/msg/Log" ]
 
 # Location where the generated files shall be located
 [Destination]
