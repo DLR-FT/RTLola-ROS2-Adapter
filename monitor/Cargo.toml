@@ -18,6 +18,7 @@ serde = { version = "1.0", features = ["derive"] }
 convert_case = "0.6.0"
 
 [dependencies]
+uuid = "=1.17.0"
 rtlola-interpreter = "0.10.1"
 rtlola-interpreter-macros = "0.1.0"
 serde = { version = "1.0.145", features = ["derive"] }
