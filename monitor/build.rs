@@ -21,6 +21,7 @@ use build_src::config::{Config, QoS};
 use build_src::ros2_reader::Ros2Reader;
 use build_src::rust_file_generator::RustFileGenerator;
 use std::fs::{self};
+use std::collections::HashSet;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 fn main() {
@@ -48,8 +49,14 @@ fn main() {
         fs::create_dir_all(format!("{}/output/", config.Destination.path)).unwrap();
 
         // Inputs
-        let subscribable_topics: Vec<(String, String, QoS)> =
+        let mut subscribable_topics: Vec<(String, String, QoS)> =
             ros2_reader.get_subscribable_topics(&config);
+        let mut seen = HashSet::new();
+        subscribable_topics.retain(|(topic, _, _)| seen.insert(topic.clone()));
+        for (topic, description, qos) in &subscribable_topics {
+           println!("cargo:warning=Topic: {topic}, Description: {description}, QoS: {qos:?}");
+        }
+        // todo!();
         // Outputs
         let rtlolaout_topic = ros2_reader.get_rtlola_output_msg();
         let rtlolaout_service = ros2_reader.get_rtlola_service();
