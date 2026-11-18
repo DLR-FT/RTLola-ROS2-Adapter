@@ -19,10 +19,9 @@ impl RustFileGenerator {
         let file = File::create(&file_location).unwrap();
         // Create file content
         let mut pub_mods_content = String::new();
-        for (topic_name, _, _) in topics {
-            let parts: Vec<&str> = topic_name.split('/').collect();
-            let topic_name = parts.last().unwrap().to_lowercase();
-            pub_mods_content.push_str(&format!("\t\tpub mod {topic_name};\n"));
+        for (topic, _, _) in topics {
+            let topic_underlined = topic.strip_prefix('/').unwrap_or(topic).replace('/', "_");
+            pub_mods_content.push_str(&format!("\t\tpub mod {topic_underlined};\n"));
         }
         // Read the contents of the file into a String
         let mut file_content = String::new();

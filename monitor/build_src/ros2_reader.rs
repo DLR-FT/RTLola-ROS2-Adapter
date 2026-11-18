@@ -20,7 +20,7 @@ impl Ros2Reader {
     }
 
     //Checks what topics are currently running
-    pub fn get_subscribable_topics(&self, config: &Config) -> Vec<(String, String, QoS)> {
+    pub fn get_subscriptable_topics(&self, config: &Config) -> Vec<(String, String, QoS)> {
         // Receive a list of topcs
         let res = Command::new("ros2")
             .args(["topic", "list", "-t"])

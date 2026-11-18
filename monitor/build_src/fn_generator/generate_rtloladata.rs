@@ -26,13 +26,12 @@ impl RustFileGenerator {
         let mut includes = String::new();
         // Build statements
         for (topic, _, _) in topics {
-            let parts: Vec<&str> = topic.split('/').collect();
-            let topic_name = parts.last().unwrap();
-            members.push_str(&format!("{topic_name} (RTLola{topic_name}),"));
+            let topic_underlined = topic.strip_prefix('/').unwrap_or(topic).replace('/', "_");
+
+            members.push_str(&format!("{topic_underlined} (RTLola_{topic_underlined}),"));
             includes.push_str(&format!(
-                "{}::RTLola{},",
-                topic_name.to_lowercase(),
-                topic_name
+                "{}::RTLola_{},",
+                topic_underlined, topic_underlined
             ));
         }
         let package_name = if let Some(service) = rtlolaout_service {

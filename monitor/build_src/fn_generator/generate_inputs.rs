@@ -22,22 +22,26 @@ impl RustFileGenerator {
     ) {
         // Reads each msg but ignore /RTLolaOutput
         let mut errors = Vec::<String>::new();
-        for (topic_name, msg_name, _) in topics {
+        for (topic_name, topic_type, _) in topics {
             // builds bash call uses the workaround script since the local ros2 setup.bash is not used and hence no information using ros2 interface can be received
-            let (name_datatype, name_package, members_type_and_name) =
+            let (topic_datatype, topic_package, members_type_and_name) =
                 Ros2Reader::read_interface_msg(
                     &self.ros2_reader.get_location_setup_script().to_string(),
-                    msg_name,
+                    topic_type,
                 );
             // Fills vector of topics that is also used in other file generation calls
             self.generated_topics.push((
                 topic_name.clone(),
-                name_package.to_string(),
-                name_datatype.to_string(),
+                topic_package.to_string(),
+                topic_datatype.to_string(),
             ));
             // Build path for each topic
+            let topic_name_underlined = topic_name
+                .strip_prefix('/')
+                .unwrap_or(topic_name)
+                .replace('/', "_");
             let new_file_location = Path::new(&format!("{}/input/", self.dest_path.clone()))
-                .join(format!("{}.rs", name_datatype.to_lowercase()));
+                .join(format!("{}.rs", topic_name_underlined));
             // Creates file
             let file = File::create(&new_file_location).unwrap();
             // Filter errors
@@ -46,8 +50,9 @@ impl RustFileGenerator {
                     // Create content of file
                     self.create_input_ros2_msg(
                         file,
-                        name_package.to_string(),
-                        name_datatype.to_string(),
+                        &topic_name,
+                        topic_package.to_string(),
+                        topic_datatype.to_string(),
                         &m_t_n,
                     );
                     // Format generated file
@@ -75,11 +80,16 @@ impl RustFileGenerator {
     fn create_input_ros2_msg(
         &self,
         file: File,
-        package_name: String,
-        topic_name: String,
+        topic_name: &String,
+        topic_package: String,
+        topic_type: String,
         members_type_and_name: &Vec<(String, String, i32)>,
     ) {
-        let topic_name_lowercase = topic_name.to_lowercase();
+        let topic_name_lowercase = topic_type.to_lowercase();
+        let topic_name_underlined = topic_name
+            .strip_prefix('/')
+            .unwrap_or(topic_name)
+            .replace('/', "_");
         // Statements to be added depending on ros2 readings
         let mut struct_data = String::new();
         let mut from_data = String::new();
@@ -102,7 +112,7 @@ impl RustFileGenerator {
             struct_data.push_str(&format!("{rtlola_name}: {ty_transformed},\n"));
             from_data.push_str(&format!("{rtlola_name}: data.{access},\n"));
         }
-        println!("{package_name} {topic_name} {struct_data}{from_data}");
+        println!("{topic_type} {topic_name} {struct_data} {from_data}");
         // Read the contents of the file into a String
         let mut file_content = String::new();
         let crate_root = std::env::current_dir().expect("Failed to get current directory");
@@ -112,8 +122,9 @@ impl RustFileGenerator {
             .read_to_string(&mut file_content)
             .unwrap();
         // Replace each template parameter by the actual values
-        file_content = file_content.replace("$PACKAGENAME$", &package_name);
-        file_content = file_content.replace("$TOPICNAME$", &topic_name);
+        file_content = file_content.replace("$PACKAGENAME$", &topic_package);
+        file_content = file_content.replace("$TOPICTYPE$", &topic_type);
+        file_content = file_content.replace("$TOPICNAME$", &topic_name_underlined);
         file_content = file_content.replace("$STRUCTDATA$", &struct_data);
         file_content = file_content.replace("$FROMDATA$", &from_data);
         // Write input source codeto file

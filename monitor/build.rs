@@ -49,32 +49,31 @@ fn main() {
         fs::create_dir_all(format!("{}/output/", config.Destination.path)).unwrap();
 
         // Inputs
-        let mut subscribable_topics: Vec<(String, String, QoS)> =
-            ros2_reader.get_subscribable_topics(&config);
+        let mut subscriptable_topics: Vec<(String, String, QoS)> =
+            ros2_reader.get_subscriptable_topics(&config);
         let mut seen = HashSet::new();
-        subscribable_topics.retain(|(topic, _, _)| seen.insert(topic.clone()));
-        for (topic, description, qos) in &subscribable_topics {
-           println!("cargo:warning=Topic: {topic}, Description: {description}, QoS: {qos:?}");
+        subscriptable_topics.retain(|(topic, _, _)| seen.insert(topic.clone()));
+        for (topic, topic_type, qos) in &subscriptable_topics {
+           println!("cargo:warning=My Information on Topic: {topic}, Type: {topic_type}, QoS: {qos:?}");
         }
-        // todo!();
         // Outputs
         let rtlolaout_topic = ros2_reader.get_rtlola_output_msg();
         let rtlolaout_service = ros2_reader.get_rtlola_service();
         // Generate rust code for inputs and outputs
         let mut rust_generator =
             RustFileGenerator::new(ros2_reader, config.Destination.path.clone());
-        rust_generator.generate_file_inputs(&subscribable_topics, &rtlolaout_service);
+        rust_generator.generate_file_inputs(&subscriptable_topics, &rtlolaout_service);
         rust_generator.generate_file_main(
             &config.Specification.location,
-            &subscribable_topics,
+            &subscriptable_topics,
             rtlolaout_service.is_some(),
         );
         rust_generator.generate_file_ros2handler(
             &config,
-            &subscribable_topics,
+            &subscriptable_topics,
             rtlolaout_service.is_some(),
         );
-        rust_generator.generate_file_rtloladata(&subscribable_topics, &rtlolaout_service);
+        rust_generator.generate_file_rtloladata(&subscriptable_topics, &rtlolaout_service);
         rust_generator.generate_file_transformations();
         rust_generator.generate_file_rtlolaout_publisher(&config, &rtlolaout_topic);
         rust_generator.generate_file_rtlolaout_service(&rtlolaout_service);

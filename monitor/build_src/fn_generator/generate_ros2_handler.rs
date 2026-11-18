@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 use crate::build_src::config::{Config, QoS};
+use crate::build_src::ros2_reader::Ros2Reader;
 use crate::build_src::rust_file_generator::RustFileGenerator;
 use std::fs::File;
 use std::io::{Read, Write};
@@ -39,14 +40,19 @@ impl RustFileGenerator {
         };
         let mut select_statement = String::new();
         // Build statements
-        for (topic, _, qos) in topics {
+        for (topic, topic_type, qos) in topics {
+            let topic_underlined = topic.strip_prefix('/').unwrap_or(topic).replace('/', "_");
+            let (topic_datatype, topic_package, _) = Ros2Reader::read_interface_msg(
+                &self.ros2_reader.get_location_setup_script().to_string(),
+                topic_type,
+            );
             let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
-            rtlola_enum.push_str(&format!(
-                "{}::RTLola{topic_name},",
-                topic_name.to_lowercase()
+            rtlola_enum.push_str(&format!("{}::RTLola_{topic_underlined},", topic_underlined));
+            ros2_msgs.push_str(&format!(
+                "use r2r::{}::msg::{};",
+                topic_package, topic_datatype
             ));
-            ros2_msgs.push_str(&format!("{topic_name},"));
             let history = qos.history.clone();
             let depth = qos.depth;
             let reliability = qos.reliability.clone();
@@ -59,8 +65,8 @@ impl RustFileGenerator {
             let qos_topic = format!("QosProfile{{ history: HistoryPolicy::{history}, depth: {depth}, reliability: ReliabilityPolicy::{reliability}, durability: DurabilityPolicy::{durability}, deadline: Duration::from_millis({deadline}), lifespan: Duration::from_millis({lifespan}), liveliness: LivelinessPolicy::{liveliness}, liveliness_lease_duration: Duration::from_millis({liveliness_lease_duration}), avoid_ros_namespace_conventions: {avoid_ros_namespace_conventions} }}");
             subscribers.push_str(&format!(
                 "let {}_subscriber = node
-            .subscribe::<{topic_name}>(\"{topic}\", {qos_topic})?
-            .map(|d| RTLolaType::Subscription(RTLolaData::{topic_name}(RTLola{topic_name}::from(d))));",
+            .subscribe::<{topic_datatype}>(\"{topic}\", {qos_topic})?
+            .map(|d| RTLolaType::Subscription(RTLolaData::{topic_underlined}(RTLola_{topic_underlined}::from(d))));",
                 topic_name.to_lowercase()
             ));
             select_statement.push_str(&format!("{}_subscriber,", topic_name.to_lowercase()));

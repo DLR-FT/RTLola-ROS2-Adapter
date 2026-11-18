@@ -12,9 +12,11 @@ use crate::{
 use futures::{stream_select, StreamExt};
 use r2r::{
     qos::{HistoryPolicy, ReliabilityPolicy, DurabilityPolicy, LivelinessPolicy},
-    rtlola_testnode::msg::{$ROS2MSGS$},
     QosProfile,
 };
+
+$ROS2MSGS$
+
 use rtlola_interpreter::{
     monitor::{Change, Verdicts},
     Monitor,

@@ -19,7 +19,7 @@ public:
     Publisher(rclcpp::Node *node) : m_node(node)
     {
         m_node->declare_parameter("Adc", "testnode/Adc");
-        m_node->declare_parameter("GpsPos", "testnode/GpsPos");
+        m_node->declare_parameter("GpsPos", "testnode/gps_pos");
         rclcpp::QoS qos(10);
         // qos.best_effort();
         m_count = 0;
