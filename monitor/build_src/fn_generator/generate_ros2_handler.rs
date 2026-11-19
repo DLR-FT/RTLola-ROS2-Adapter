@@ -49,10 +49,10 @@ impl RustFileGenerator {
             let parts: Vec<&str> = topic.split('/').collect();
             let topic_name = parts.last().unwrap();
             rtlola_enum.push_str(&format!("{}::RTLola_{topic_underlined},", topic_underlined));
-            ros2_msgs.push_str(&format!(
-                "use r2r::{}::msg::{};",
-                topic_package, topic_datatype
-            ));
+            let import = format!("use r2r::{}::msg::{};", topic_package, topic_datatype);
+            if !ros2_msgs.contains(&import) {
+                ros2_msgs.push_str(&format!("{}\n", import));
+            }
             let history = qos.history.clone();
             let depth = qos.depth;
             let reliability = qos.reliability.clone();

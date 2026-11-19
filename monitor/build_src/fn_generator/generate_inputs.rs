@@ -100,7 +100,7 @@ impl RustFileGenerator {
             } else {
                 format!("{topic_name_lowercase}_{name}")
             };
-            let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
+            let (ty_transformed, ty_as) = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
                 name.to_string()
             } else {
@@ -110,7 +110,7 @@ impl RustFileGenerator {
                 format!("{name}[{i}]")
             };
             struct_data.push_str(&format!("{rtlola_name}: {ty_transformed},\n"));
-            from_data.push_str(&format!("{rtlola_name}: data.{access},\n"));
+            from_data.push_str(&format!("{rtlola_name}: data.{access} {ty_as},\n"));
         }
         println!("{topic_type} {topic_name} {struct_data} {from_data}");
         // Read the contents of the file into a String
@@ -147,7 +147,7 @@ impl RustFileGenerator {
             } else {
                 format!("rtlolarequest_{name}")
             };
-            let ty_transformed = RustFileGenerator::transform_type_ros2rust(ty);
+            let (ty_transformed, ty_as) = RustFileGenerator::transform_type_ros2rust(ty);
             let access: String = if *i < 0 {
                 name.to_string()
             } else {
@@ -157,7 +157,7 @@ impl RustFileGenerator {
                 format!("{name}[{i}]")
             };
             struct_data.push_str(&format!("{rtlola_name}: {ty_transformed},\n"));
-            from_data.push_str(&format!("{rtlola_name}: data.{access},\n"));
+            from_data.push_str(&format!("{rtlola_name}: data.{access} {ty_as},\n"));
         }
         println!("{package_name} {struct_data}{from_data}");
         // Read the contents of the file into a String

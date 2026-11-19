@@ -16,3 +16,4 @@ float32 vertical_accuracy_estimate
 # test array
 float32[3] data_3
 float32[2] data_n
+uint8 testu8

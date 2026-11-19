@@ -13,23 +13,33 @@ pub mod output {
     pub mod transformations;
 }
 use crate::{
-    input::rtloladata::RTLolaData, input::rtloladata::RTLolaDataFactory, ros2_handler::Ros2Handler,
+    input::rtloladata::RTLolaData, ros2_handler::Ros2Handler,
 };
-use rtlola_interpreter::{input::AssociatedFactory, monitor::Incremental, ConfigBuilder, Monitor};
+use rtlola_interpreter::{input::AssociatedEventFactory, monitor::Incremental, rtlola_frontend::{self, ParserConfig}, ConfigBuilder};
 use std::fs;
 
 #[tokio::main]
 async fn main() {
     let spec = fs::read_to_string("$SPECLOCATION$").unwrap();
-    // Creates monitor
-    let monitor: Monitor<RTLolaDataFactory, rtlola_interpreter::config::OnlineMode> =
-        ConfigBuilder::new()
-            .spec_str(spec.as_str())
-            .online()
-            .with_event_factory::<<RTLolaData as AssociatedFactory>::Factory>()
-            .with_verdict::<Incremental>()
-            .monitor()
-            .expect("Failed to build monitor");
+    // Parse specification
+    let parser_config = ParserConfig::for_string(spec.clone());
+    let mir = rtlola_frontend::parse(&parser_config).expect("Failed to parse RTLola specification");
+    let available_inputs: Vec<String> = mir.inputs.iter().map(|i| i.name.clone()).collect();
+    println!("Available RTLola inputs: {:?}", available_inputs);
+    // Create monitor
+    let monitor_result = ConfigBuilder::new()
+        .with_ir(mir)
+        .online()
+        .with_event_factory::<<RTLolaData as AssociatedEventFactory>::Factory>()
+        .with_verdict::<Incremental>()
+        .monitor();
+    let monitor = match monitor_result {
+        Ok(monitor) => monitor,
+        Err(err) => {
+            eprintln!("Failed to build RTLola monitor: {:?}", err);
+            return;
+        }
+    };
     println!("Run monitor ...");
     // Runs monitor
     Ros2Handler::run(monitor).await.unwrap();

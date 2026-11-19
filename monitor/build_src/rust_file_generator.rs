@@ -27,21 +27,21 @@ impl RustFileGenerator {
             .expect("Failed to execute process");
     }
 
-    pub fn transform_type_ros2rust(types: &String) -> &str {
+    pub fn transform_type_ros2rust(types: &String) -> (&str, &str) {
         let ty_transformed = match types.as_str() {
-            "bool" => "bool",
+            "bool" => ("bool", ""),
             "byte" => todo!(),
             "char" => todo!(),
-            "float32" => "f32",
-            "float64" => "f64",
-            "int8" => "i8",
-            "uint8" => "u8",
-            "int16" => "i16",
-            "uint16" => "u16",
-            "int32" => "i32",
-            "uint32" => "u32",
-            "int64" => "i64",
-            "uint64" => "u64",
+            "float32" => ("f32", ""),
+            "float64" => ("f64", ""),
+            "int8" => ("i16", "as i16"),
+            "uint8" => ("u16", "as u16"),
+            "int16" => ("i16", ""),
+            "uint16" => ("u16", ""),
+            "int32" => ("i32", ""),
+            "uint32" => ("u32", ""),
+            "int64" => ("i64", ""),
+            "uint64" => ("u64", ""),
             "string" => todo!(),
             _ => panic!("Unsupported Ros2 Type: {}", types),
         };
