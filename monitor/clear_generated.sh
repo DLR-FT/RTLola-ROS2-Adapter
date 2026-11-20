@@ -3,3 +3,4 @@
 
 rm -r src_generated/
 rm -r target/*/build/r2r*
+rm mir.json

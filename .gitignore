@@ -13,3 +13,4 @@ src_generated
 Cargo.lock
 .gitignore
 .vscode/settings.json
+monitor/clear_generated.sh

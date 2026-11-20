@@ -15,15 +15,26 @@ pub mod output {
 use crate::{
     input::rtloladata::RTLolaData, ros2_handler::Ros2Handler,
 };
-use rtlola_interpreter::{input::AssociatedEventFactory, monitor::Incremental, rtlola_frontend::{self, ParserConfig}, ConfigBuilder};
-use std::fs;
+use rtlola_interpreter::{input::AssociatedEventFactory, monitor::Incremental, rtlola_frontend::{self, hash::HashedMir, ParserConfig}, ConfigBuilder};
+use std::{fs, io::BufWriter};
 
 #[tokio::main]
 async fn main() {
     let spec = fs::read_to_string("$SPECLOCATION$").unwrap();
     // Parse specification
     let parser_config = ParserConfig::for_string(spec.clone());
-    let mir = rtlola_frontend::parse(&parser_config).expect("Failed to parse RTLola specification");
+    let cache = "mir.json";
+    let mir = fs::read(cache)
+        .ok()
+        .and_then(|bytes| serde_json::from_slice::<HashedMir>(&bytes).ok())
+        .and_then(|hashed| hashed.check(&parser_config).ok())
+        .unwrap_or_else(|| {
+            let mir = rtlola_frontend::parse(&parser_config).expect(&format!("Failed to parse RTLola specification: cwd {} exptected: $SPECLOCATION$", std::env::current_dir().unwrap().display() ));
+            let file = fs::File::create(cache).unwrap();
+            serde_json::to_writer(BufWriter::new(file), &mir.clone().hash(&parser_config)).unwrap();
+            mir
+        });
+
     let available_inputs: Vec<String> = mir.inputs.iter().map(|i| i.name.clone()).collect();
     println!("Available RTLola inputs: {:?}", available_inputs);
     // Create monitor
