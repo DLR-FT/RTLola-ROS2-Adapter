@@ -7,4 +7,4 @@ SPDX-License-Identifier: CC-BY-NC-ND-4.0
 - Please open **an issue**, if you have improvement ideas.
 - Please open **a merge request**, if you want to share some improvements to the material.
   Please note that we follow the [One Sentence per Line Principle](https://rhodesmill.org/brandon/2012/one-sentence-per-line/).
-- If you contribute content to the repository, please make sure to mark your copyright (or the copyright of your research organization / company) using the SPDX `SPDX-FileCopyrightText` tag
+- If you contribute content to the repository, please make sure to mark your copyright (or the copyright of your research organization / company) using the SPDX `SPDX-FileCopyrightText` tag.
