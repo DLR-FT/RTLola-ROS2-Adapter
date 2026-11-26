@@ -29,7 +29,6 @@ A comprehensive RTLola tutorial can be found [here](https://rtlola.cispa.de/play
 - [RTLola-Ros2-Monitor](#rtlola-ros2-monitor)
   - [Table of Content](#table-of-content)
   - [Getting Started](#getting-started)
-  - [Contributors](#contributors)
   - [Contributing](#contributing)
   - [Changes](#changes)
   - [License](#license)
